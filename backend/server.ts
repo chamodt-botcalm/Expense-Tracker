@@ -7,6 +7,8 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+app.use(express.json());
+
 async function initDB() {
     try {
         await sql`CREATE TABLE IF NOT EXISTS transactions(
@@ -26,7 +28,7 @@ async function initDB() {
 
 app.post("/api.transactions",(req,res)=>{
     try {
-        
+        const {title, amount, category, user_id} = req.body;
     } catch (error) {
         
     }
