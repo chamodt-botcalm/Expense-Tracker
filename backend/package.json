@@ -2,11 +2,11 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "src/server.ts",
   "scripts": {
-    "dev": "nodemon --exec tsx server.ts",
+    "dev": "nodemon",
     "build": "tsx",
-    "start": "node dist/server.ts",
+    "start": "tsx src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,9 +15,12 @@
   "type": "module",
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
+    "@upstash/ratelimit": "^2.0.7",
+    "@upstash/redis": "^1.36.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "upstash": "^0.0.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
