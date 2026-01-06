@@ -1,16 +1,20 @@
 import express from "express"
 import dotenv from "dotenv"
+import cors from "cors"
 import { initDB, sql } from './config/db'
 import rateLimiter from './middleware/RateLimiter';
 import transactionsRoutes from './routes/transactionsRoutes';
+import authRoutes from './routes/authRoutes';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+app.use(cors());
 app.use(rateLimiter)
 app.use(express.json());
+app.use('/api/auth', authRoutes);
 app.use('/api/transaction',transactionsRoutes)
 
 
