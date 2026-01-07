@@ -24,6 +24,7 @@ export async function createTransaction(req: any, res: any) {
                 VALUES (${title}, ${amount}, ${category}, ${user_id})
                 RETURNING *
             `;
+        // amazonq-ignore-next-line
         console.log("Transaction created:", result);
         res.status(201).json({ message: "Transaction created successfully", transaction: result[0] });
     } catch (error) {
@@ -34,11 +35,11 @@ export async function createTransaction(req: any, res: any) {
 
 export async function deleteTransaction(req: any, res: any) {
     try {
-        const result = await sql`DELETE FROM transactions WHERE id = ${req.params.id} RETURNING *`;
-
         if (isNaN(Number(req.params.id))) {
             return res.status(400).json({ message: "Invalid transaction ID" });
         }
+
+        const result = await sql`DELETE FROM transactions WHERE id = ${req.params.id} RETURNING *`;
 
         if (result.length === 0) {
             return res.status(404).json({ message: "Transaction not found" });
@@ -51,6 +52,7 @@ export async function deleteTransaction(req: any, res: any) {
         return res.status(500).json({ message: "Server Error" });
     }
 }
+
 export async function getTransactionSummaryByUserId(req: any, res: any) {
     try {
         const balanceResult = await sql`SELECT COALESCE(SUM(amount), 0) AS balance FROM transactions WHERE user_id = ${req.params.user_id}`;

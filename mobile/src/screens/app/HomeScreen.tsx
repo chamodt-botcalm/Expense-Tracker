@@ -1,14 +1,22 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { View, StyleSheet, FlatList, Pressable } from 'react-native';
 import AppText from '../../components/AppText';
 import Card from '../../components/Card';
 import { colors, spacing, radius } from '../../theme/colors';
 import { TransactionsContext } from '../../store/transactions';
+import { AuthContext } from '../../store/auth';
 import { formatMoney } from '../../utils/money';
 import TransactionItem from '../../components/TransactionItem';
 
 export default function HomeScreen({ navigation }: any) {
-  const { items } = useContext(TransactionsContext);
+  const { items, fetchTransactions } = useContext(TransactionsContext);
+  const { userId } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (userId) {
+      fetchTransactions(userId);
+    }
+  }, [userId, fetchTransactions]);
 
   const stats = useMemo(() => {
     const income = items.filter(t => t.amount > 0).reduce((a, b) => a + b.amount, 0);

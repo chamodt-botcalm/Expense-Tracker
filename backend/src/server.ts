@@ -5,6 +5,7 @@ import { initDB, sql } from './config/db'
 import rateLimiter from './middleware/RateLimiter';
 import transactionsRoutes from './routes/transactionsRoutes';
 import authRoutes from './routes/authRoutes';
+import signupRoutes from './routes/signupRoutes';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(rateLimiter)
 app.use(express.json());
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', signupRoutes);
 app.use('/api/transaction',transactionsRoutes)
 
 

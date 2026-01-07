@@ -1,9 +1,5 @@
 import { sql } from '../config/db';
-import crypto from 'crypto';
-
-const hashPassword = (password: string): string => {
-  return crypto.createHash('sha256').update(password).digest('hex');
-};
+import bcrypt from 'bcrypt';
 
 export async function signUp(req: any, res: any) {
   try {
@@ -22,7 +18,7 @@ export async function signUp(req: any, res: any) {
       return res.status(400).json({ message: "Email already exists" });
     }
 
-    const hashedPassword = hashPassword(password);
+    const hashedPassword = await bcrypt.hash(password, 10);
     const result = await sql`
       INSERT INTO users (email, password)
       VALUES (${email.toLowerCase()}, ${hashedPassword})
@@ -47,13 +43,18 @@ export async function signIn(req: any, res: any) {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
-    const hashedPassword = hashPassword(password);
     const result = await sql`
-      SELECT id, email FROM users 
-      WHERE email = ${email.toLowerCase()} AND password = ${hashedPassword}
+      SELECT id, email, password FROM users 
+      WHERE email = ${email.toLowerCase()}
     `;
 
     if (result.length === 0) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const isValidPassword = await bcrypt.compare(password, result[0].password);
+    
+    if (!isValidPassword) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 

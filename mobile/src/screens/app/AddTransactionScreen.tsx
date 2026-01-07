@@ -6,37 +6,50 @@ import AppButton from '../../components/AppButton';
 import Card from '../../components/Card';
 import { colors, spacing, radius } from '../../theme/colors';
 import { TransactionsContext, Tx } from '../../store/transactions';
+import { AuthContext } from '../../store/auth';
 
 const categories: Tx['category'][] = ['Food', 'Transport', 'Bills', 'Shopping', 'Income', 'Other'];
 
 export default function AddTransactionScreen({ navigation }: any) {
   const { addTx } = useContext(TransactionsContext);
+  const { userId } = useContext(AuthContext);
 
   const [title, setTitle] = useState('');
   const [amountRaw, setAmountRaw] = useState('');
   const [category, setCategory] = useState<Tx['category']>('Food');
   const [isIncome, setIsIncome] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const amount = useMemo(() => {
     const n = Number(amountRaw);
     return Number.isFinite(n) ? n : 0;
   }, [amountRaw]);
 
-  const canSave = title.trim().length >= 2 && amount > 0;
+  const canSave = title.trim().length >= 2 && amount > 0 && userId;
 
-  const save = () => {
+  const save = async () => {
     if (!canSave) {
       Alert.alert('Missing info', 'Enter a title and amount.');
       return;
     }
-    const dateISO = new Date().toISOString().slice(0, 10);
-    addTx({
-      title: title.trim(),
-      category: isIncome ? 'Income' : category,
-      amount: isIncome ? amount : -amount,
-      dateISO,
-    });
-    navigation.goBack();
+    try {
+      setSaving(true);
+      const dateISO = new Date().toISOString().slice(0, 10);
+      await addTx(
+        {
+          title: title.trim(),
+          category: isIncome ? 'Income' : category,
+          amount: isIncome ? amount : -amount,
+          dateISO,
+        },
+        userId!,
+      );
+      navigation.goBack();
+    } catch (error: any) {
+      Alert.alert('Error', error?.message || 'Failed to save transaction');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -98,7 +111,7 @@ export default function AddTransactionScreen({ navigation }: any) {
           </>
         ) : null}
 
-        <AppButton title="Save transaction" onPress={save} disabled={!canSave} style={{ marginTop: 16 }} />
+        <AppButton title="Save transaction" onPress={save} disabled={!canSave} loading={saving} style={{ marginTop: 16 }} />
       </Card>
     </View>
   );

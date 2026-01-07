@@ -81,11 +81,13 @@ export default function SignInScreen({ navigation }: any) {
         />
       </Card>
 
-      <Pressable onPress={() => navigation.navigate('SignUp')} hitSlop={10}>
-        <AppText muted>
-          New here? <AppText style={{ color: colors.accent, fontWeight: '700' }}>Create an account</AppText>
-        </AppText>
-      </Pressable>
+      <View style={styles.footer}>
+        <Pressable onPress={() => navigation.navigate('SignupEmail')} hitSlop={10}>
+          <AppText muted>
+            New here? <AppText style={{ color: colors.accent, fontWeight: '700' }}>Create account</AppText>
+          </AppText>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -96,5 +98,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
     padding: spacing.lg,
     paddingTop: 56,
+  },
+  footer: {
+    marginTop: 'auto',
+    paddingBottom: 20,
   },
 });

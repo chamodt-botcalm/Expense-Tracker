@@ -1,44 +1,77 @@
-import React, { createContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { api } from '../config/api';
 
 export type Tx = {
   id: string;
   title: string;
   category: 'Food' | 'Transport' | 'Bills' | 'Shopping' | 'Income' | 'Other';
-  amount: number; // + income, - expense
-  dateISO: string; // yyyy-mm-dd
+  amount: number;
+  dateISO: string;
 };
 
 type Ctx = {
   items: Tx[];
-  addTx: (tx: Omit<Tx, 'id'>) => void;
-  removeTx: (id: string) => void;
+  addTx: (tx: Omit<Tx, 'id'>, userId: string) => Promise<void>;
+  removeTx: (id: string) => Promise<void>;
+  fetchTransactions: (userId: string) => Promise<void>;
+  loading: boolean;
 };
-
-const seed: Tx[] = [
-  { id: '1', title: 'Tesco', category: 'Food', amount: -12.4, dateISO: '2026-01-06' },
-  { id: '2', title: 'Bus', category: 'Transport', amount: -2.0, dateISO: '2026-01-05' },
-  { id: '3', title: 'Salary', category: 'Income', amount: 450.0, dateISO: '2026-01-01' },
-  { id: '4', title: 'Coffee', category: 'Food', amount: -3.2, dateISO: '2025-12-30' },
-];
 
 export const TransactionsContext = createContext<Ctx>({
   items: [],
-  addTx: () => {},
-  removeTx: () => {},
+  addTx: async () => {},
+  removeTx: async () => {},
+  fetchTransactions: async () => {},
+  loading: false,
 });
 
 export function TransactionsProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<Tx[]>(seed);
+  const [items, setItems] = useState<Tx[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const addTx: Ctx['addTx'] = (tx) => {
-    setItems((prev) => [{ ...tx, id: String(Date.now()) }, ...prev]);
-  };
+  const fetchTransactions = useCallback(async (userId: string) => {
+    try {
+      setLoading(true);
+      const response = await api.getTransactions(userId);
+      const transactions = response.transactions.map((tx: any) => ({
+        id: String(tx.id),
+        title: tx.title,
+        category: tx.category,
+        amount: Number(tx.amount),
+        dateISO: tx.created_at,
+      }));
+      setItems(transactions);
+    } catch (error) {
+      console.error('Failed to fetch transactions:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const removeTx: Ctx['removeTx'] = (id) => {
-    setItems((prev) => prev.filter((t) => t.id !== id));
-  };
+  const addTx = useCallback(async (tx: Omit<Tx, 'id'>, userId: string) => {
+    try {
+      await api.createTransaction(tx.title, tx.amount, tx.category, userId);
+      await fetchTransactions(userId);
+    } catch (error) {
+      console.error('Failed to add transaction:', error);
+      throw error;
+    }
+  }, [fetchTransactions]);
 
-  const value = useMemo(() => ({ items, addTx, removeTx }), [items]);
+  const removeTx = useCallback(async (id: string) => {
+    try {
+      await api.deleteTransaction(id);
+      setItems((prev) => prev.filter((t) => t.id !== id));
+    } catch (error) {
+      console.error('Failed to delete transaction:', error);
+      throw error;
+    }
+  }, []);
+
+  const value = useMemo(
+    () => ({ items, addTx, removeTx, fetchTransactions, loading }),
+    [items, addTx, removeTx, fetchTransactions, loading],
+  );
 
   return <TransactionsContext.Provider value={value}>{children}</TransactionsContext.Provider>;
 }

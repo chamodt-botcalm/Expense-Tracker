@@ -4,7 +4,8 @@ import ratelimit from '../config/upstash';
 
 const rateLimiter = async (req:any, res:any, next:any) => {
     try {
-        const { success } = await ratelimit.limit("my-rate-limit");
+        const ip = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown';
+        const { success } = await ratelimit.limit(ip);
 
         if (!success) {
             return res.status(429).json({ message: "Too many requests, please try again later." });
