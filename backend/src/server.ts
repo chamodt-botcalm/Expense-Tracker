@@ -6,6 +6,7 @@ import rateLimiter from './middleware/RateLimiter';
 import transactionsRoutes from './routes/transactionsRoutes';
 import authRoutes from './routes/authRoutes';
 import signupRoutes from './routes/signupRoutes';
+import profileRoutes from './routes/profileRoutes';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/auth', signupRoutes);
 app.use('/api/transaction',transactionsRoutes)
+app.use('/api/profile', profileRoutes);
 
 
 initDB().then(() =>

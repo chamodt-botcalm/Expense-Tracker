@@ -1,4 +1,4 @@
-const API_URL = 'http://10.190.92.27:5001';
+import { API_URL } from './env';
 
 export const otpApi = {
   sendOTP: async (email: string) => {

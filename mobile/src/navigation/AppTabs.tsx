@@ -4,20 +4,25 @@ import HomeScreen from '../screens/app/HomeScreen';
 import TransactionsScreen from '../screens/app/TransactionsScreen';
 import ProfileScreen from '../screens/app/ProfileScreen';
 import { colors } from '../theme/colors';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import AppText from '../components/AppText';
+import { scaleHeight } from '../constants/size';
+import AddTransactionScreen from '../screens/app/AddTransactionScreen';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type AppTabParamList = {
   Home: undefined;
   Transactions: undefined;
+  Add: undefined;
   Profile: undefined;
+  Charts: undefined;
 };
 
 const Tab = createBottomTabNavigator<AppTabParamList>();
 
 function Label({ title, focused }: { title: string; focused: boolean }) {
   return (
-    <AppText style={{ fontSize: 12, marginTop: 2, color: focused ? colors.accent : colors.muted, fontWeight: '700' }}>
+    <AppText numberOfLines={1} style={{ fontSize: 10, marginTop: 2, color: focused ? colors.accent : colors.muted, fontWeight: '700' }}>
       {title}
     </AppText>
   );
@@ -30,7 +35,7 @@ function IconBubble({ focused, text }: { focused: boolean; text: string }) {
         width: 36,
         height: 36,
         borderRadius: 14,
-        alignItems: 'center',
+        alignItems:'center',
         justifyContent: 'center',
         backgroundColor: focused ? colors.accent : colors.surface,
         borderWidth: 1,
@@ -43,6 +48,8 @@ function IconBubble({ focused, text }: { focused: boolean; text: string }) {
 }
 
 export default function AppTabs() {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator
       screenOptions={{
@@ -51,9 +58,9 @@ export default function AppTabs() {
         tabBarStyle: {
           backgroundColor: colors.bg,
           borderTopColor: colors.border,
-          height: 70,
-          paddingBottom: 10,
-          paddingTop: 10,
+          height: scaleHeight(100) + insets.bottom,
+          paddingBottom: insets.bottom,
+          paddingTop: scaleHeight(40),
         },
       }}
     >
@@ -62,7 +69,7 @@ export default function AppTabs() {
         component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <View style={{ alignItems: 'center' }}>
+            <View>
               <IconBubble focused={focused} text="⌂" />
               <Label title="Home" focused={focused} />
             </View>
@@ -74,19 +81,52 @@ export default function AppTabs() {
         component={TransactionsScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <View style={{ alignItems: 'center' }}>
+            <View>
               <IconBubble focused={focused} text="≋" />
               <Label title="Activity" focused={focused} />
             </View>
           ),
         }}
       />
+       <Tab.Screen
+        name="Add"
+        component={AddTransactionScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <View >
+               <View style={{
+                 width: 50,
+                 height: 50,
+                 borderRadius: 30,
+                 alignItems: 'center',
+                 justifyContent: 'center',
+                 backgroundColor: colors.accent,
+                 marginBottom: scaleHeight(40),
+               }}>
+                 <AppText style={{ color: colors.bg, fontWeight: '900' }}>＋</AppText>
+               </View>
+            </View>
+          ),
+        }}
+      />
       <Tab.Screen
+        name="Charts"
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <View >
+              <IconBubble focused={focused} text="☺" />
+              <Label title="Charts" focused={focused} />
+            </View>
+          ),
+        }}
+      />
+       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <View style={{ alignItems: 'center' }}>
+            <View >
               <IconBubble focused={focused} text="☺" />
               <Label title="Profile" focused={focused} />
             </View>

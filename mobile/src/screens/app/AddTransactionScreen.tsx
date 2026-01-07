@@ -7,6 +7,7 @@ import Card from '../../components/Card';
 import { colors, spacing, radius } from '../../theme/colors';
 import { TransactionsContext, Tx } from '../../store/transactions';
 import { AuthContext } from '../../store/auth';
+import { scaleHeight } from '../../constants/size';
 
 const categories: Tx['category'][] = ['Food', 'Transport', 'Bills', 'Shopping', 'Income', 'Other'];
 
@@ -122,12 +123,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bg,
     padding: spacing.lg,
-    paddingTop: 18,
+    marginTop: scaleHeight(50),
   },
   topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: scaleHeight(30),
   },
   chipsRow: {
     flexDirection: 'row',

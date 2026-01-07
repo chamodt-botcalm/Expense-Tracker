@@ -4,17 +4,20 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
 import { AuthProvider } from './src/store/auth';
 import { TransactionsProvider } from './src/store/transactions';
+import { ThemeProvider } from './src/store/theme';
 import { colors } from './src/theme/colors';
 
 export default function App() {
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle="light-content" backgroundColor={colors.bg} />
-      <AuthProvider>
-        <TransactionsProvider>
-          <RootNavigator />
-        </TransactionsProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <StatusBar barStyle="light-content" backgroundColor={colors.bg} />
+        <AuthProvider>
+          <TransactionsProvider>
+            <RootNavigator />
+          </TransactionsProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

@@ -7,6 +7,7 @@ import { TransactionsContext } from '../../store/transactions';
 import { AuthContext } from '../../store/auth';
 import { formatMoney } from '../../utils/money';
 import TransactionItem from '../../components/TransactionItem';
+import { scaleHeight } from '../../constants/size';
 
 export default function HomeScreen({ navigation }: any) {
   const { items, fetchTransactions } = useContext(TransactionsContext);
@@ -31,9 +32,6 @@ export default function HomeScreen({ navigation }: any) {
     <View style={styles.wrap}>
       <View style={styles.header}>
         <AppText title>PulseSpend</AppText>
-        <Pressable onPress={() => navigation.navigate('AddTx')} style={styles.addBtn}>
-          <AppText style={{ color: colors.bg, fontWeight: '900' }}>＋</AppText>
-        </Pressable>
       </View>
 
       <Card style={{ marginTop: 14 }}>
@@ -84,12 +82,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bg,
     padding: spacing.lg,
-    paddingTop: 18,
+    marginTop: scaleHeight(50),
   },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    marginBottom: scaleHeight(20),
   },
   addBtn: {
     width: 44,

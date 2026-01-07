@@ -11,6 +11,19 @@ export const colors = {
   cardShadow: 'rgba(0,0,0,0.35)',
 };
 
+export const lightColors = {
+  bg: '#F5F7FA',
+  surface: '#FFFFFF',
+  surface2: '#E8EDF2',
+  text: '#1A1F2E',
+  muted: '#6B7280',
+  border: 'rgba(26,31,46,0.10)',
+  accent: '#DBFF00',
+  danger: '#FF4D4D',
+  success: '#4DFF88',
+  cardShadow: 'rgba(0,0,0,0.08)',
+};
+
 export const spacing = {
   xs: 8,
   sm: 12,
