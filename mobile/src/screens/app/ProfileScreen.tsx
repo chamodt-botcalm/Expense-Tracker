@@ -1,233 +1,139 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { View, StyleSheet, Image, Pressable, Alert, ActivityIndicator } from 'react-native';
-import * as ImagePicker from 'react-native-image-picker';
-import AppText from '../../components/AppText';
-import Card from '../../components/Card';
-import AppButton from '../../components/AppButton';
-import AppInput from '../../components/AppInput';
-import { spacing, radius } from '../../theme/colors';
-import { AuthContext } from '../../store/auth';
-import { ThemeContext } from '../../store/theme';
-import { profileApi } from '../../config/profileApi';
+import React, { useContext, useState, useEffect } from "react";
+import { View, StyleSheet, Alert, ActivityIndicator } from "react-native";
+import AppText from "../../components/AppText";
+import Card from "../../components/Card";
+import AppButton from "../../components/AppButton";
+import AppInput from "../../components/AppInput";
+import CloudinaryPhotoPicker from "../../components/CloudinaryPhotoPicker";
+import { spacing } from "../../theme/colors";
+import { AuthContext } from "../../store/auth";
+import { ThemeContext } from "../../store/theme";
+import { profileApi } from "../../config/profileApi";
 
 export default function ProfileScreen() {
   const { userEmail, userId, signOut } = useContext(AuthContext);
   const { theme, colors, setTheme } = useContext(ThemeContext);
 
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [savingName, setSavingName] = useState(false);
+  const [savingTheme, setSavingTheme] = useState(false);
 
   useEffect(() => {
-    if (userId) {
-      loadProfile();
-    }
+    if (userId) loadProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const loadProfile = async () => {
     try {
       setLoading(true);
       const data = await profileApi.getProfile(userId!);
-      setName(data.profile.name || '');
+      setName(data.profile.name || "");
       setProfilePhoto(data.profile.profile_photo || null);
-      if (data.profile.theme) {
-        setTheme(data.profile.theme);
-      }
+      if (data.profile.theme) setTheme(data.profile.theme);
     } catch (error: any) {
-      console.error('Failed to load profile:', error);
+      console.error("Failed to load profile:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const pickImage = () => {
-    ImagePicker.launchImageLibrary(
-      {
-        mediaType: 'photo',
-        quality: 0.8,
-        maxWidth: 800,
-        maxHeight: 800,
-      },
-      async (response) => {
-        if (response.didCancel) return;
-        if (response.errorMessage) {
-          Alert.alert('Error', response.errorMessage);
-          return;
-        }
-
-        const uri = response.assets?.[0]?.uri;
-        if (!uri) return;
-
-        try {
-          setUploading(true);
-          const cloudinaryUrl = await profileApi.uploadToCloudinary(uri);
-          await profileApi.updateProfile(userId!, { profile_photo: cloudinaryUrl });
-          setProfilePhoto(cloudinaryUrl);
-          Alert.alert('Success', 'Profile photo updated');
-        } catch (error: any) {
-          Alert.alert('Error', error?.message || 'Failed to upload photo');
-        } finally {
-          setUploading(false);
-        }
-      }
-    );
+  const onPhotoUploaded = async (url: string) => {
+    try {
+      await profileApi.updateProfile(userId!, { profile_photo: url });
+      setProfilePhoto(url);
+      Alert.alert("Success", "Profile photo updated");
+    } catch (e: any) {
+      Alert.alert("Error", e?.message || "Failed to update profile");
+    }
   };
 
   const updateName = async () => {
-    if (!name.trim()) {
-      Alert.alert('Error', 'Name cannot be empty');
-      return;
-    }
-
     try {
-      setLoading(true);
-      await profileApi.updateProfile(userId!, { name: name.trim() });
-      Alert.alert('Success', 'Name updated');
-    } catch (error: any) {
-      Alert.alert('Error', error?.message || 'Failed to update name');
+      if (!name.trim()) return Alert.alert("Name required", "Please enter a name.");
+      setSavingName(true);
+      const data = await profileApi.updateProfile(userId!, { name: name.trim() });
+      setName(data.profile.name || "");
+      Alert.alert("Updated", "Name updated successfully");
+    } catch (e: any) {
+      Alert.alert("Error", e?.message || "Failed to update name");
     } finally {
-      setLoading(false);
+      setSavingName(false);
     }
   };
 
   const toggleTheme = async () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    const next = theme === "dark" ? "light" : "dark";
     try {
-      setTheme(newTheme);
-      await profileApi.updateProfile(userId!, { theme: newTheme });
-    } catch (error: any) {
-      Alert.alert('Error', error?.message || 'Failed to update theme');
-      setTheme(theme);
+      setSavingTheme(true);
+      await profileApi.updateProfile(userId!, { theme: next });
+      setTheme(next);
+    } catch (e: any) {
+      Alert.alert("Error", e?.message || "Failed to update theme");
+    } finally {
+      setSavingTheme(false);
     }
   };
 
-  if (loading && !name) {
+  if (!userId) {
     return (
-      <View style={[styles.wrap, { backgroundColor: colors.bg }]}>
-        <ActivityIndicator color={colors.accent} />
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <AppText>Please sign in to view your profile.</AppText>
+      </View>
+    );
+  }
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background, justifyContent: "center" }]}>
+        <ActivityIndicator />
       </View>
     );
   }
 
   return (
-    <View style={[styles.wrap, { backgroundColor: colors.bg }]}>
-      <AppText title style={{ color: colors.text }}>Profile</AppText>
-      <AppText muted style={{ marginTop: 6, color: colors.muted }}>
-        Manage your account.
-      </AppText>
-
-      <Card style={{ marginTop: 14, backgroundColor: colors.surface, borderColor: colors.border }}>
-        <View style={styles.photoSection}>
-          <Pressable onPress={pickImage} disabled={uploading}>
-            <View style={[styles.photoContainer, { borderColor: colors.border }]}>
-              {uploading ? (
-                <ActivityIndicator color={colors.accent} />
-              ) : profilePhoto ? (
-                <Image source={{ uri: profilePhoto }} style={styles.photo} />
-              ) : (
-                <AppText style={{ fontSize: 40, color: colors.muted }}>👤</AppText>
-              )}
-            </View>
-          </Pressable>
-          <Pressable onPress={pickImage} disabled={uploading} hitSlop={10}>
-            <AppText style={{ color: colors.accent, fontWeight: '700', marginTop: 8 }}>
-              {uploading ? 'Uploading...' : 'Change Photo'}
-            </AppText>
-          </Pressable>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Card>
+        <View style={styles.center}>
+          <CloudinaryPhotoPicker value={profilePhoto} onChange={onPhotoUploaded} />
+          <AppText style={[styles.email, { color: colors.text }]}>{userEmail}</AppText>
         </View>
 
-        <AppText muted style={{ marginTop: 20, marginBottom: 8, color: colors.muted }}>
-          Name
-        </AppText>
-        <AppInput
-          value={name}
-          onChangeText={setName}
-          placeholder="Enter your name"
-          style={{ color: colors.text }}
-        />
+        <View style={{ height: 16 }} />
+
+        <AppInput placeholder="Your name" value={name} onChangeText={setName} />
+
+        <View style={{ height: 12 }} />
+
+        <AppButton title={savingName ? "Updating..." : "Update Name"} onPress={updateName} disabled={savingName} />
+
+        <View style={{ height: 18 }} />
+
         <AppButton
-          title="Update Name"
-          variant="secondary"
-          onPress={updateName}
-          disabled={!name.trim() || loading}
-          style={{ marginTop: 12 }}
+          title={savingTheme ? "Updating..." : `Switch to ${theme === "dark" ? "Light" : "Dark"} Theme`}
+          onPress={toggleTheme}
+          disabled={savingTheme}
         />
 
-        <AppText muted style={{ marginTop: 20, marginBottom: 8, color: colors.muted }}>
-          Email
-        </AppText>
-        <AppText style={{ fontWeight: '800', color: colors.text }}>{userEmail ?? '-'}</AppText>
+        <View style={{ height: 18 }} />
 
-        <AppText muted style={{ marginTop: 20, marginBottom: 8, color: colors.muted }}>
-          Theme
-        </AppText>
-        <View style={styles.themeRow}>
-          <Pressable
-            onPress={toggleTheme}
-            style={[
-              styles.themeOption,
-              { backgroundColor: colors.surface2, borderColor: colors.border },
-              theme === 'dark' && { backgroundColor: colors.accent, borderColor: 'transparent' },
-            ]}
-          >
-            <AppText style={{ fontWeight: '700', color: theme === 'dark' ? colors.bg : colors.text }}>
-              🌙 Dark
-            </AppText>
-          </Pressable>
-          <Pressable
-            onPress={toggleTheme}
-            style={[
-              styles.themeOption,
-              { backgroundColor: colors.surface2, borderColor: colors.border },
-              theme === 'light' && { backgroundColor: colors.accent, borderColor: 'transparent' },
-            ]}
-          >
-            <AppText style={{ fontWeight: '700', color: theme === 'light' ? colors.bg : colors.text }}>
-              ☀️ Light
-            </AppText>
-          </Pressable>
-        </View>
-
-        <AppButton title="Sign out" variant="secondary" onPress={signOut} style={{ marginTop: 20 }} />
+        <AppButton title="Sign Out" onPress={signOut} variant="ghost" />
       </Card>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
+  container: {
     flex: 1,
     padding: spacing.lg,
-    paddingTop: 18,
   },
-  photoSection: {
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  photoContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  photo: {
-    width: '100%',
-    height: '100%',
-  },
-  themeRow: {
-    flexDirection: 'row',
+  center: {
+    alignItems: "center",
     gap: 10,
   },
-  themeOption: {
-    flex: 1,
-    height: 44,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  email: {
+    opacity: 0.9,
   },
 });

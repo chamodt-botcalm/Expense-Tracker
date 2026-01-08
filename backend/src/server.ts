@@ -2,7 +2,7 @@ import express from "express"
 import dotenv from "dotenv"
 import cors from "cors"
 import { initDB, sql } from './config/db'
-import rateLimiter from './middleware/RateLimiter';
+import rateLimiter from './middleware/rateLimiter';
 import transactionsRoutes from './routes/transactionsRoutes';
 import authRoutes from './routes/authRoutes';
 import signupRoutes from './routes/signupRoutes';

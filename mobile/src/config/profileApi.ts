@@ -18,22 +18,4 @@ export const profileApi = {
     if (!response.ok) throw new Error(data.message || 'Failed to update profile');
     return data;
   },
-
-  uploadToCloudinary: async (imageUri: string) => {
-    const formData = new FormData();
-    formData.append('file', {
-      uri: imageUri,
-      type: 'image/jpeg',
-      name: 'profile.jpg',
-    } as any);
-    formData.append('upload_preset', 'ml_default');
-
-    const response = await fetch('https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload', {
-      method: 'POST',
-      body: formData,
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error('Upload failed');
-    return data.secure_url;
-  },
 };
