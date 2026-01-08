@@ -1,14 +1,17 @@
 import React, { useContext, useEffect } from 'react';
 import { View, StyleSheet, FlatList, Alert } from 'react-native';
 import AppText from '../../components/AppText';
-import { colors, spacing } from '../../theme/colors';
+import { spacing } from '../../theme/colors';
 import { TransactionsContext } from '../../store/transactions';
 import { AuthContext } from '../../store/auth';
 import TransactionItem from '../../components/TransactionItem';
+import { ThemeContext } from '../../store/theme';
+import { scaleHeight } from '../../constants/size';
 
 export default function TransactionsScreen() {
   const { items, removeTx, fetchTransactions } = useContext(TransactionsContext);
   const { userId } = useContext(AuthContext);
+  const { colors } = useContext(ThemeContext);
 
   useEffect(() => {
     if (userId) {
@@ -25,10 +28,15 @@ export default function TransactionsScreen() {
   };
 
   return (
-    <View style={styles.wrap}>
-      <AppText title style={{ marginBottom: 14 }}>
-        Transactions
-      </AppText>
+    <View style={[styles.wrap, { backgroundColor: colors.bg }]}>
+      <View style={styles.header}>
+        <AppText title style={{ fontSize: 28 }}>
+          All Transactions
+        </AppText>
+        <AppText muted style={{ marginTop: 4, fontSize: 14 }}>
+          {items.length} total
+        </AppText>
+      </View>
 
       <FlatList
         data={items}
@@ -55,8 +63,10 @@ export default function TransactionsScreen() {
 const styles = StyleSheet.create({
   wrap: {
     flex: 1,
-    backgroundColor: colors.bg,
     padding: spacing.lg,
-    paddingTop: 18,
+    marginTop: scaleHeight(50),
+  },
+  header: {
+    marginBottom: 20,
   },
 });

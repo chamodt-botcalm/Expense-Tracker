@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import AppText from './AppText';
-import { colors, radius } from '../theme/colors';
+import { radius } from '../theme/colors';
 import { Tx } from '../store/transactions';
 import { formatMoney } from '../utils/money';
+import { ThemeContext } from '../store/theme';
 
 export default function TransactionItem({
   item,
@@ -12,18 +13,21 @@ export default function TransactionItem({
   item: Tx;
   onPress?: () => void;
 }) {
+  const { colors } = useContext(ThemeContext);
   const isIncome = item.amount > 0;
 
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && { opacity: 0.85 }]}>
-      <View style={[styles.dot, { backgroundColor: isIncome ? colors.success : colors.danger }]} />
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.row, { backgroundColor: colors.surface, borderColor: colors.border }, pressed && { opacity: 0.7, transform: [{ scale: 0.98 }] }]}>
+      <View style={[styles.iconBox, { backgroundColor: isIncome ? 'rgba(77,255,136,0.15)' : 'rgba(255,77,77,0.15)' }]}>
+        <AppText style={{ fontSize: 20 }}>{isIncome ? '↗' : '↙'}</AppText>
+      </View>
       <View style={{ flex: 1 }}>
-        <AppText style={{ fontWeight: '700' }}>{item.title}</AppText>
-        <AppText muted style={{ marginTop: 2 }}>
+        <AppText style={{ fontWeight: '700', fontSize: 15 }}>{item.title}</AppText>
+        <AppText muted style={{ marginTop: 3, fontSize: 13 }}>
           {item.category} • {item.dateISO}
         </AppText>
       </View>
-      <AppText mono style={{ fontWeight: '800', color: isIncome ? colors.success : colors.text }}>
+      <AppText mono style={{ fontWeight: '800', fontSize: 16, color: isIncome ? colors.success : colors.text }}>
         {formatMoney(item.amount)}
       </AppText>
     </Pressable>
@@ -35,16 +39,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderRadius: radius.lg,
-    backgroundColor: colors.surface,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
   },
-  dot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+  iconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Text, TextProps, StyleSheet } from 'react-native';
-import { colors } from '../theme/colors';
+import { ThemeContext } from '../store/theme';
 
 type Props = TextProps & {
   muted?: boolean;
@@ -9,12 +9,15 @@ type Props = TextProps & {
 };
 
 export default function AppText({ style, muted, title, mono, ...props }: Props) {
+  const { colors } = useContext(ThemeContext);
+  
   return (
     <Text
       {...props}
       style={[
         styles.base,
-        muted && styles.muted,
+        { color: colors.text },
+        muted && { color: colors.muted },
         title && styles.title,
         mono && styles.mono,
         style,
@@ -25,12 +28,8 @@ export default function AppText({ style, muted, title, mono, ...props }: Props) 
 
 const styles = StyleSheet.create({
   base: {
-    color: colors.text,
     fontSize: 15,
     lineHeight: 20,
-  },
-  muted: {
-    color: colors.muted,
   },
   title: {
     fontSize: 22,

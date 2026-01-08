@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Pressable, StyleSheet, ViewStyle, ActivityIndicator } from 'react-native';
 import AppText from './AppText';
-import { colors, radius } from '../theme/colors';
+import { radius } from '../theme/colors';
+import { ThemeContext } from '../store/theme';
 
 type Props = {
   title: string;
@@ -20,6 +21,7 @@ export default function AppButton({
   variant = 'primary',
   style,
 }: Props) {
+  const { colors } = useContext(ThemeContext);
   const isDisabled = disabled || loading;
 
   return (
@@ -28,20 +30,20 @@ export default function AppButton({
       disabled={isDisabled}
       style={({ pressed }) => [
         styles.base,
-        variant === 'primary' && styles.primary,
-        variant === 'secondary' && styles.secondary,
-        variant === 'ghost' && styles.ghost,
+        variant === 'primary' && { backgroundColor: colors.accent, borderColor: 'transparent' },
+        variant === 'secondary' && { backgroundColor: colors.surface2, borderColor: colors.border },
+        variant === 'ghost' && { backgroundColor: 'transparent', borderColor: colors.border },
         isDisabled && styles.disabled,
         pressed && !isDisabled && styles.pressed,
         style,
       ]}
     >
       {loading ? (
-        <ActivityIndicator />
+        <ActivityIndicator color={variant === 'primary' ? colors.bg : colors.accent} />
       ) : (
         <AppText
           style={[
-            styles.text,
+            { fontWeight: '800', fontSize: 15, color: colors.bg },
             variant === 'secondary' && { color: colors.text },
             variant === 'ghost' && { color: colors.accent },
           ]}
@@ -55,32 +57,17 @@ export default function AppButton({
 
 const styles = StyleSheet.create({
   base: {
-    height: 52,
+    height: 54,
     borderRadius: radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: StyleSheet.hairlineWidth,
-  },
-  primary: {
-    backgroundColor: colors.accent,
-    borderColor: 'transparent',
-  },
-  secondary: {
-    backgroundColor: colors.surface2,
-    borderColor: colors.border,
-  },
-  ghost: {
-    backgroundColor: 'transparent',
-    borderColor: colors.border,
+    borderWidth: 1.5,
   },
   disabled: {
     opacity: 0.5,
   },
   pressed: {
-    transform: [{ scale: 0.99 }],
-  },
-  text: {
-    fontWeight: '700',
-    color: colors.bg,
+    transform: [{ scale: 0.98 }],
+    opacity: 0.9,
   },
 });

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
+import { View, StyleSheet, Animated, ActivityIndicator } from 'react-native';
 import AppText from '../components/AppText';
 import { colors, radius } from '../theme/colors';
 
@@ -12,10 +12,7 @@ export default function SplashScreen({ onDone }: { onDone?: () => void }) {
       Animated.timing(opacity, { toValue: 1, duration: 450, useNativeDriver: true }),
       Animated.spring(scale, { toValue: 1, friction: 6, useNativeDriver: true }),
     ]).start();
-
-    const t = setTimeout(() => onDone?.(), 900);
-    return () => clearTimeout(t);
-  }, [onDone, opacity, scale]);
+  }, [opacity, scale]);
 
   return (
     <View style={styles.wrap}>
@@ -25,11 +22,12 @@ export default function SplashScreen({ onDone }: { onDone?: () => void }) {
         </AppText>
       </Animated.View>
 
-      <Animated.View style={{ opacity, marginTop: 18 }}>
+      <Animated.View style={{ opacity, marginTop: 18, alignItems: 'center' }}>
         <AppText title>PulseSpend</AppText>
         <AppText muted style={{ marginTop: 6 }}>
           Track • Control • Grow
         </AppText>
+        <ActivityIndicator size="small" color={colors.accent} style={{ marginTop: 20 }} />
       </Animated.View>
     </View>
   );

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, TextInput, StyleSheet, TextInputProps } from 'react-native';
-import { colors, radius } from '../theme/colors';
+import { radius } from '../theme/colors';
+import { ThemeContext } from '../store/theme';
 
 type Props = TextInputProps & {
   left?: React.ReactNode;
@@ -8,13 +9,15 @@ type Props = TextInputProps & {
 };
 
 export default function AppInput({ left, right, style, ...props }: Props) {
+  const { colors } = useContext(ThemeContext);
+  
   return (
-    <View style={styles.wrap}>
+    <View style={[styles.wrap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       {left ? <View style={styles.side}>{left}</View> : null}
       <TextInput
         placeholderTextColor={colors.muted}
         {...props}
-        style={[styles.input, style]}
+        style={[styles.input, { color: colors.text }, style]}
       />
       {right ? <View style={styles.side}>{right}</View> : null}
     </View>
@@ -23,14 +26,12 @@ export default function AppInput({ left, right, style, ...props }: Props) {
 
 const styles = StyleSheet.create({
   wrap: {
-    height: 52,
+    height: 54,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    paddingHorizontal: 12,
+    borderWidth: 1.5,
+    paddingHorizontal: 14,
     gap: 10,
   },
   side: {
@@ -39,7 +40,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    color: colors.text,
     fontSize: 15,
+    fontWeight: '500',
   },
 });

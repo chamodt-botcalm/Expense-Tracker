@@ -4,16 +4,18 @@ import AppText from '../../components/AppText';
 import AppInput from '../../components/AppInput';
 import AppButton from '../../components/AppButton';
 import Card from '../../components/Card';
-import { colors, spacing, radius } from '../../theme/colors';
+import { spacing, radius } from '../../theme/colors';
 import { TransactionsContext, Tx } from '../../store/transactions';
 import { AuthContext } from '../../store/auth';
 import { scaleHeight } from '../../constants/size';
+import { ThemeContext } from '../../store/theme';
 
 const categories: Tx['category'][] = ['Food', 'Transport', 'Bills', 'Shopping', 'Income', 'Other'];
 
 export default function AddTransactionScreen({ navigation }: any) {
   const { addTx } = useContext(TransactionsContext);
   const { userId } = useContext(AuthContext);
+  const { colors } = useContext(ThemeContext);
 
   const [title, setTitle] = useState('');
   const [amountRaw, setAmountRaw] = useState('');
@@ -54,7 +56,7 @@ export default function AddTransactionScreen({ navigation }: any) {
   };
 
   return (
-    <View style={styles.wrap}>
+    <View style={[styles.wrap, { backgroundColor: colors.bg }]}>
       <View style={styles.topRow}>
         <AppText title>Add</AppText>
         <Pressable onPress={() => navigation.goBack()} hitSlop={10}>
@@ -63,14 +65,14 @@ export default function AddTransactionScreen({ navigation }: any) {
       </View>
 
       <Card style={{ marginTop: 14 }}>
-        <AppText muted style={{ marginBottom: 8 }}>
+        <AppText muted style={{ marginBottom: 10, fontSize: 13 }}>
           Title
         </AppText>
         <AppInput value={title} onChangeText={setTitle} placeholder="e.g., Uber, Rent, Groceries" />
 
-        <View style={{ height: 14 }} />
+        <View style={{ height: 16 }} />
 
-        <AppText muted style={{ marginBottom: 8 }}>
+        <AppText muted style={{ marginBottom: 10, fontSize: 13 }}>
           Amount
         </AppText>
         <AppInput
@@ -80,20 +82,22 @@ export default function AddTransactionScreen({ navigation }: any) {
           placeholder="e.g., 12.50"
         />
 
-        <View style={{ height: 14 }} />
+        <View style={{ height: 18 }} />
 
         <View style={styles.chipsRow}>
-          <Pressable onPress={() => setIsIncome(false)} style={[styles.chip, !isIncome && styles.chipActive]}>
-            <AppText style={{ fontWeight: '800', color: !isIncome ? colors.bg : colors.text }}>Expense</AppText>
+          <Pressable onPress={() => setIsIncome(false)} style={[styles.chip, { backgroundColor: colors.surface2, borderColor: colors.border }, !isIncome && { backgroundColor: colors.danger, borderColor: 'transparent' }]}>
+            <AppText style={{ fontSize: 18, marginBottom: 2 }}>↙</AppText>
+            <AppText style={{ fontWeight: '800', fontSize: 13, color: !isIncome ? '#fff' : colors.text }}>Expense</AppText>
           </Pressable>
-          <Pressable onPress={() => setIsIncome(true)} style={[styles.chip, isIncome && styles.chipActive]}>
-            <AppText style={{ fontWeight: '800', color: isIncome ? colors.bg : colors.text }}>Income</AppText>
+          <Pressable onPress={() => setIsIncome(true)} style={[styles.chip, { backgroundColor: colors.surface2, borderColor: colors.border }, isIncome && { backgroundColor: colors.success, borderColor: 'transparent' }]}>
+            <AppText style={{ fontSize: 18, marginBottom: 2 }}>↗</AppText>
+            <AppText style={{ fontWeight: '800', fontSize: 13, color: isIncome ? '#fff' : colors.text }}>Income</AppText>
           </Pressable>
         </View>
 
         {!isIncome ? (
           <>
-            <AppText muted style={{ marginTop: 12, marginBottom: 8 }}>
+            <AppText muted style={{ marginTop: 16, marginBottom: 10, fontSize: 13 }}>
               Category
             </AppText>
             <View style={styles.catWrap}>
@@ -103,16 +107,16 @@ export default function AddTransactionScreen({ navigation }: any) {
                   <Pressable
                     key={c}
                     onPress={() => setCategory(c)}
-                    style={[styles.cat, category === c && styles.catActive]}
+                    style={[styles.cat, { backgroundColor: colors.surface2, borderColor: colors.border }, category === c && { backgroundColor: colors.accent, borderColor: colors.accent }]}
                   >
-                    <AppText style={{ fontWeight: '700', color: category === c ? colors.bg : colors.text }}>{c}</AppText>
+                    <AppText style={{ fontWeight: '700', fontSize: 14, color: category === c ? colors.bg : colors.text }}>{c}</AppText>
                   </Pressable>
                 ))}
             </View>
           </>
         ) : null}
 
-        <AppButton title="Save transaction" onPress={save} disabled={!canSave} loading={saving} style={{ marginTop: 16 }} />
+        <AppButton title="Save Transaction" onPress={save} disabled={!canSave} loading={saving} style={{ marginTop: 20 }} />
       </Card>
     </View>
   );
@@ -121,7 +125,6 @@ export default function AddTransactionScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   wrap: {
     flex: 1,
-    backgroundColor: colors.bg,
     padding: spacing.lg,
     marginTop: scaleHeight(50),
   },
@@ -137,17 +140,11 @@ const styles = StyleSheet.create({
   },
   chip: {
     flex: 1,
-    height: 44,
+    height: 56,
     borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.surface2,
-  },
-  chipActive: {
-    backgroundColor: colors.accent,
-    borderColor: 'transparent',
   },
   catWrap: {
     flexDirection: 'row',
@@ -155,15 +152,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   cat: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    backgroundColor: colors.surface2,
-  },
-  catActive: {
-    backgroundColor: colors.accent,
-    borderColor: 'transparent',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: radius.md,
+    borderWidth: 1.5,
   },
 });
