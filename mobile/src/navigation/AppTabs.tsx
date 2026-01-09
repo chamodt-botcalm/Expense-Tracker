@@ -1,13 +1,13 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/app/HomeScreen';
-import TransactionsScreen from '../screens/app/TransactionsScreen';
-import ProfileScreen from '../screens/app/ProfileScreen';
+import HomeScreen from '../views/app/HomeScreen';
+import TransactionsScreen from '../views/app/TransactionsScreen';
+import ProfileScreen from '../views/app/ProfileScreen';
 import { colors } from '../theme/colors';
 import { Pressable, View } from 'react-native';
 import AppText from '../components/AppText';
 import { scaleHeight } from '../constants/size';
-import AddTransactionScreen from '../screens/app/AddTransactionScreen';
+import AddTransactionScreen from '../views/app/AddTransactionScreen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type AppTabParamList = {

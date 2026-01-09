@@ -1,9 +1,10 @@
+import { TransactionModel } from '../models/TransactionModel';
 import { sql } from '../config/db';
 
 
 export async function getTransactionByUserId(req: any, res: any) {
     try {
-        const transactions = await sql`SELECT * FROM transactions WHERE user_id = ${req.params.user_id} ORDER BY created_at DESC`;
+        const transactions = await TransactionModel.findByUserId(req.params.user_id);
         res.status(200).json({ message: "Transactions fetched successfully", transactions });
     }
     catch (error) {
@@ -19,14 +20,8 @@ export async function createTransaction(req: any, res: any) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        const result = await sql`
-                INSERT INTO transactions (title, amount, category, user_id)
-                VALUES (${title}, ${amount}, ${category}, ${user_id})
-                RETURNING *
-            `;
-        // amazonq-ignore-next-line
-        console.log("Transaction created:", result);
-        res.status(201).json({ message: "Transaction created successfully", transaction: result[0] });
+        const transaction = await TransactionModel.create(user_id, title, amount, category);
+        res.status(201).json({ message: "Transaction created successfully", transaction });
     } catch (error) {
         console.log("Error creating transaction:", error);
         res.status(500).json({ message: "Server Error" });
@@ -39,12 +34,7 @@ export async function deleteTransaction(req: any, res: any) {
             return res.status(400).json({ message: "Invalid transaction ID" });
         }
 
-        const result = await sql`DELETE FROM transactions WHERE id = ${req.params.id} RETURNING *`;
-
-        if (result.length === 0) {
-            return res.status(404).json({ message: "Transaction not found" });
-        }
-
+        await TransactionModel.delete(req.params.id);
         res.status(200).json({ message: "Transaction deleted successfully" });
 
     }

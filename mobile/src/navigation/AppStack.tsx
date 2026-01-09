@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AppTabs from './AppTabs';
-import AddTransactionScreen from '../screens/app/AddTransactionScreen';
+import AddTransactionScreen from '../views/app/AddTransactionScreen';
 
 export type AppStackParamList = {
   Tabs: undefined;

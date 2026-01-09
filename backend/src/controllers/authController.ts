@@ -1,4 +1,4 @@
-import { sql } from '../config/db';
+import { UserModel } from '../models/UserModel';
 import bcrypt from 'bcrypt';
 
 export async function signUp(req: any, res: any) {
@@ -13,21 +13,17 @@ export async function signUp(req: any, res: any) {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
-    const existing = await sql`SELECT * FROM users WHERE email = ${email.toLowerCase()}`;
-    if (existing.length > 0) {
+    const existing = await UserModel.findByEmail(email.toLowerCase());
+    if (existing) {
       return res.status(400).json({ message: "Email already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await sql`
-      INSERT INTO users (email, password)
-      VALUES (${email.toLowerCase()}, ${hashedPassword})
-      RETURNING id, email
-    `;
+    const user = await UserModel.create(email.toLowerCase(), hashedPassword);
 
     res.status(201).json({ 
       message: "User created successfully", 
-      user: { id: result[0].id, email: result[0].email }
+      user: { id: user.id, email: user.email }
     });
   } catch (error) {
     console.error("Error in signUp:", error);
@@ -43,16 +39,13 @@ export async function signIn(req: any, res: any) {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
-    const result = await sql`
-      SELECT id, email, password FROM users 
-      WHERE email = ${email.toLowerCase()}
-    `;
+    const user = await UserModel.findByEmail(email.toLowerCase());
 
-    if (result.length === 0) {
+    if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const isValidPassword = await bcrypt.compare(password, result[0].password);
+    const isValidPassword = await bcrypt.compare(password, user.password);
     
     if (!isValidPassword) {
       return res.status(401).json({ message: "Invalid email or password" });
@@ -60,7 +53,7 @@ export async function signIn(req: any, res: any) {
 
     res.status(200).json({ 
       message: "Sign in successful", 
-      user: { id: result[0].id, email: result[0].email }
+      user: { id: user.id, email: user.email }
     });
   } catch (error) {
     console.error("Error in signIn:", error);

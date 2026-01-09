@@ -1,4 +1,4 @@
-export const API_URL = 'http://10.190.92.183:5001';
+export const API_URL = 'http://10.190.92.227:5001';
 
 // Cloudinary (unsigned uploads)
 // 1) Create an unsigned upload preset in Cloudinary

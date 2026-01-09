@@ -6,7 +6,7 @@ import { ProfileContext } from '../store/profile';
 import { ThemeContext } from '../store/theme';
 import AuthStack from './AuthStack';
 import AppStack from './AppStack';
-import SplashScreen from '../screens/SplashScreen';
+import SplashScreen from '../views/SplashScreen';
 import { colors } from '../theme/colors';
 import { profileApi } from '../config/profileApi';
 

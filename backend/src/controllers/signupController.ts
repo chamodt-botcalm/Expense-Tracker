@@ -1,4 +1,4 @@
-import { sql } from '../config/db';
+import { UserModel } from '../models/UserModel';
 import { sendPasskeyEmail } from '../config/nodemailer';
 import {
   generateOTP,
@@ -22,8 +22,8 @@ export async function sendPasskey(req: any, res: any) {
     const normalizedEmail = email.toLowerCase().trim();
 
     // Check if user already exists
-    const existing = await sql`SELECT id FROM users WHERE email = ${normalizedEmail}`;
-    if (existing.length > 0) {
+    const existing = await UserModel.findByEmail(normalizedEmail);
+    if (existing) {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
@@ -93,8 +93,8 @@ export async function setPassword(req: any, res: any) {
     }
 
     // Check if user already exists
-    const existing = await sql`SELECT id FROM users WHERE email = ${normalizedEmail}`;
-    if (existing.length > 0) {
+    const existing = await UserModel.findByEmail(normalizedEmail);
+    if (existing) {
       clearSignupSession(normalizedEmail);
       return res.status(400).json({ message: 'Email already registered' });
     }
@@ -103,11 +103,7 @@ export async function setPassword(req: any, res: any) {
     const passwordHash = await bcrypt.hash(password, 10);
 
     // Create user
-    const result = await sql`
-      INSERT INTO users (email, password)
-      VALUES (${normalizedEmail}, ${passwordHash})
-      RETURNING id, email, created_at
-    `;
+    const user = await UserModel.create(normalizedEmail, passwordHash);
 
     // Clear signup session
     clearSignupSession(normalizedEmail);
@@ -115,9 +111,9 @@ export async function setPassword(req: any, res: any) {
     res.status(201).json({
       message: 'Account created successfully',
       user: {
-        id: result[0].id,
-        email: result[0].email,
-        createdAt: result[0].created_at,
+        id: user.id,
+        email: user.email,
+        createdAt: user.created_at,
       },
     });
   } catch (error) {

@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import {createHash} from 'crypto';
 
 export interface OTPRecord {
   email: string;
@@ -20,7 +20,7 @@ export function generateOTP(): string {
 }
 
 export function hashOTP(otp: string): string {
-  return crypto.createHash('sha256').update(otp).digest('hex');
+  return createHash('sha256').update(otp).digest('hex');
 }
 
 export function storeOTP(email: string, otp: string): void {
