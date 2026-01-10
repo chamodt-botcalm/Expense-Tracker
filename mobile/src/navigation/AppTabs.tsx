@@ -3,12 +3,14 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../views/app/HomeScreen';
 import TransactionsScreen from '../views/app/TransactionsScreen';
 import ProfileScreen from '../views/app/ProfileScreen';
+import ChartsScreen from '../views/app/ChartsScreen';
 import { colors } from '../theme/colors';
-import { Pressable, View } from 'react-native';
+import { View, Animated, StyleSheet, Image } from 'react-native';
 import AppText from '../components/AppText';
 import { scaleHeight } from '../constants/size';
 import AddTransactionScreen from '../views/app/AddTransactionScreen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { images } from '../constants/images';
 
 export type AppTabParamList = {
   Home: undefined;
@@ -21,29 +23,66 @@ export type AppTabParamList = {
 const Tab = createBottomTabNavigator<AppTabParamList>();
 
 function Label({ title, focused }: { title: string; focused: boolean }) {
+  const scale = React.useRef(new Animated.Value(focused ? 1 : 0.9)).current;
+  
+  React.useEffect(() => {
+    Animated.spring(scale, {
+      toValue: focused ? 1 : 0.9,
+      useNativeDriver: true,
+      tension: 100,
+      friction: 7,
+    }).start();
+  }, [focused]);
+
   return (
-    <AppText numberOfLines={1} style={{ fontSize: 10, marginTop: 2, color: focused ? colors.accent : colors.muted, fontWeight: '700' }}>
-      {title}
-    </AppText>
+    <Animated.View style={{ transform: [{ scale }] }}>
+      <AppText numberOfLines={1} style={{ fontSize: 10, marginTop: 4, color: focused ? colors.accent : colors.muted, fontWeight: '700' }}>
+        {title}
+      </AppText>
+    </Animated.View>
   );
 }
 
 function IconBubble({ focused, text }: { focused: boolean; text: string }) {
+  const scale = React.useRef(new Animated.Value(1)).current;
+  const opacity = React.useRef(new Animated.Value(focused ? 1 : 0.7)).current;
+  
+  React.useEffect(() => {
+    Animated.parallel([
+      Animated.spring(scale, {
+        toValue: focused ? 1.1 : 1,
+        useNativeDriver: true,
+        tension: 80,
+        friction: 6,
+      }),
+      Animated.timing(opacity, {
+        toValue: focused ? 1 : 0.7,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [focused]);
+
   return (
-    <View
-      style={{
-        width: 36,
-        height: 36,
-        borderRadius: 14,
-        alignItems:'center',
-        justifyContent: 'center',
-        backgroundColor: focused ? colors.accent : colors.surface,
-        borderWidth: 1,
-        borderColor: focused ? 'transparent' : colors.border,
-      }}
-    >
-      <AppText style={{ color: focused ? colors.bg : colors.text, fontWeight: '900' }}>{text}</AppText>
-    </View>
+    <Animated.View style={{ transform: [{ scale }], opacity }}>
+      <View
+        style={[
+          styles.iconBubble,
+          {
+            backgroundColor: focused ? colors.accent : colors.surface,
+            borderWidth: focused ? 0 : 1,
+            borderColor: colors.border,
+            shadowColor: focused ? colors.accent : 'transparent',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: focused ? 0.4 : 0,
+            shadowRadius: 8,
+            elevation: focused ? 8 : 0,
+          },
+        ]}
+      >
+        <AppText style={{ color: focused ? colors.bg : colors.text, fontWeight: '900', fontSize: 18 }}>{text}</AppText>
+      </View>
+    </Animated.View>
   );
 }
 
@@ -56,11 +95,15 @@ export default function AppTabs() {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: colors.bg,
-          borderTopColor: colors.border,
-          height: scaleHeight(100) + insets.bottom,
+          backgroundColor: colors.surface,
+          borderTopWidth: 0,
+          height: scaleHeight(90) + insets.bottom,
           paddingBottom: insets.bottom,
-          paddingTop: scaleHeight(40),
+          paddingTop: scaleHeight(25),
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 12,
+          elevation: 20,
         },
       }}
     >
@@ -69,8 +112,8 @@ export default function AppTabs() {
         component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <View>
-              <IconBubble focused={focused} text="⌂" />
+            <View style={{ alignItems: 'center' }}>
+              <Image source={images.home} style={{width:24,height:24,tintColor: focused ? colors.accent : colors.muted}} />
               <Label title="Home" focused={focused} />
             </View>
           ),
@@ -81,8 +124,8 @@ export default function AppTabs() {
         component={TransactionsScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <View>
-              <IconBubble focused={focused} text="≋" />
+             <View>
+              <Image source={images.activity} style={{width:24,height:24,tintColor: focused ? colors.accent : colors.muted}} />
               <Label title="Activity" focused={focused} />
             </View>
           ),
@@ -92,30 +135,45 @@ export default function AppTabs() {
         name="Add"
         component={AddTransactionScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
-            <View >
-               <View style={{
-                 width: 50,
-                 height: 50,
-                 borderRadius: 30,
-                 alignItems: 'center',
-                 justifyContent: 'center',
-                 backgroundColor: colors.accent,
-                 marginBottom: scaleHeight(40),
-               }}>
-                 <AppText style={{ color: colors.bg, fontWeight: '900' }}>＋</AppText>
-               </View>
-            </View>
-          ),
+          tabBarIcon: ({ focused }) => {
+            const scale = React.useRef(new Animated.Value(1)).current;
+            
+            React.useEffect(() => {
+              Animated.spring(scale, {
+                toValue: focused ? 1.05 : 1,
+                useNativeDriver: true,
+                tension: 80,
+                friction: 6,
+              }).start();
+            }, [focused]);
+
+            return (
+              <Animated.View style={{ transform: [{ scale }] }}>
+                <View style={[
+                  styles.addButton,
+                  {
+                    backgroundColor: colors.accent,
+                    shadowColor: colors.accent,
+                    shadowOffset: { width: 0, height: 6 },
+                    shadowOpacity: 0.5,
+                    shadowRadius: 12,
+                    elevation: 12,
+                  },
+                ]}>
+                  <AppText style={{ color: colors.bg, fontWeight: '900', fontSize: 24 }}>＋</AppText>
+                </View>
+              </Animated.View>
+            );
+          },
         }}
       />
       <Tab.Screen
         name="Charts"
-        component={ProfileScreen}
+        component={ChartsScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <View >
-              <IconBubble focused={focused} text="☺" />
+            <View style={{ alignItems: 'center' }}>
+              <Image source={images.chart} style={{width:24,height:24,tintColor: focused ? colors.accent : colors.muted}} />
               <Label title="Charts" focused={focused} />
             </View>
           ),
@@ -126,8 +184,8 @@ export default function AppTabs() {
         component={ProfileScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <View >
-              <IconBubble focused={focused} text="☺" />
+             <View style={{ alignItems: 'center' }}>
+              <Image source={images.profile} style={{width:24,height:24,tintColor: focused ? colors.accent : colors.muted}} />
               <Label title="Profile" focused={focused} />
             </View>
           ),
@@ -136,3 +194,20 @@ export default function AppTabs() {
     </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  iconBubble: {
+    width: 44,
+    height: 44,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

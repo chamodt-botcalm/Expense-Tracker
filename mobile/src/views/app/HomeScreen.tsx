@@ -10,6 +10,7 @@ import { formatMoney } from '../../utils/money';
 import TransactionItem from '../../components/TransactionItem';
 import { scaleHeight } from '../../constants/size';
 import { ThemeContext } from '../../store/theme';
+import { images } from '../../constants/images';
 
 export default function HomeScreen({ navigation }: any) {
   const { items } = useContext(TransactionsContext);
@@ -48,12 +49,12 @@ export default function HomeScreen({ navigation }: any) {
           {formatMoney(stats.balance)}
         </AppText>
 
-        <View style={{ flexDirection: 'row',alignSelf:'center', gap: 12, marginTop: 20 }}>
+        <View style={{ flexDirection: 'row', alignSelf: 'center', gap: 12, marginTop: 20 }}>
           <View style={[styles.pill, { backgroundColor: 'rgba(77,255,136,0.12)', borderColor: 'rgba(77,255,136,0.3)' }]}>
 
-            <View style={{ flexDirection: 'row',gap:5, alignItems:'center' }}>
+            <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
               <View style={styles.pillIcon}>
-                <AppText style={{ fontSize: 18 }}>↗</AppText>
+                <Image source={images.income} style={styles.Image} />
               </View>
               <AppText muted style={{ fontSize: 12 }}>Income</AppText>
             </View>
@@ -65,9 +66,9 @@ export default function HomeScreen({ navigation }: any) {
           </View>
           <View style={[styles.pill, { backgroundColor: 'rgba(255,77,77,0.10)', borderColor: 'rgba(255,77,77,0.3)' }]}>
 
-            <View style={{ flexDirection: 'row',gap:5, alignItems:'center' }}>
+            <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
               <View style={styles.pillIcon}>
-                <AppText style={{ fontSize: 18 }}>↙</AppText>
+                <Image source={images.expense} style={styles.Image} />
               </View>
               <AppText muted style={{ fontSize: 12 }}>Expense</AppText>
             </View>
@@ -177,4 +178,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  Image: {
+    width: 38,
+    height: 38,
+    tintColor: '#FFFF',
+    resizeMode: 'contain'
+  }
 });

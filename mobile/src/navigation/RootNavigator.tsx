@@ -12,11 +12,20 @@ import { profileApi } from '../config/profileApi';
 
 export default function RootNavigator() {
   const { userEmail, isLoading, userId } = useContext(AuthContext);
-  const { fetchTransactions } = useContext(TransactionsContext);
-  const { loadProfile, isLoading: profileLoading } = useContext(ProfileContext);
+  const { fetchTransactions, clearTransactions } = useContext(TransactionsContext);
+  const { loadProfile, clearProfile, isLoading: profileLoading } = useContext(ProfileContext);
   const { setTheme } = useContext(ThemeContext);
   const [showSplash, setShowSplash] = useState(true);
   const [dataLoaded, setDataLoaded] = useState(false);
+
+  // Clear data when user logs out
+  useEffect(() => {
+    if (!userId) {
+      clearProfile();
+      clearTransactions();
+      setDataLoaded(false);
+    }
+  }, [userId, clearProfile, clearTransactions]);
 
   // Load all data when user is authenticated
   useEffect(() => {

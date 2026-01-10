@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View,Image } from 'react-native';
 import AppText from './AppText';
 import { radius } from '../theme/colors';
 import { Tx } from '../store/transactions';
 import { formatMoney } from '../utils/money';
 import { ThemeContext } from '../store/theme';
+import { images } from '../constants/images';
 
 export default function TransactionItem({
   item,
@@ -19,7 +20,7 @@ export default function TransactionItem({
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.row, { backgroundColor: colors.surface, borderColor: colors.border }, pressed && { opacity: 0.7, transform: [{ scale: 0.98 }] }]}>
       <View style={[styles.iconBox, { backgroundColor: isIncome ? 'rgba(77,255,136,0.15)' : 'rgba(255,77,77,0.15)' }]}>
-        <AppText style={{ fontSize: 20 }}>{isIncome ? '↗' : '↙'}</AppText>
+        {isIncome ?  <Image source={images.income} style={styles.Image} /> :  <Image source={images.expense} style={styles.Image} />}
       </View>
       <View style={{ flex: 1 }}>
         <AppText style={{ fontWeight: '700', fontSize: 15 }}>{item.title}</AppText>
@@ -51,4 +52,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+   Image: {
+    width: 38,
+    height: 38,
+    tintColor: '#FFFF',
+    resizeMode: 'contain'
+  }
 });

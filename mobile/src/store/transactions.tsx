@@ -14,6 +14,7 @@ type Ctx = {
   addTx: (tx: Omit<Tx, 'id'>, userId: string) => Promise<void>;
   removeTx: (id: string) => Promise<void>;
   fetchTransactions: (userId: string) => Promise<void>;
+  clearTransactions: () => void;
   loading: boolean;
 };
 
@@ -22,6 +23,7 @@ export const TransactionsContext = createContext<Ctx>({
   addTx: async () => {},
   removeTx: async () => {},
   fetchTransactions: async () => {},
+  clearTransactions: () => {},
   loading: false,
 });
 
@@ -68,9 +70,13 @@ export function TransactionsProvider({ children }: { children: React.ReactNode }
     }
   }, []);
 
+  const clearTransactions = useCallback(() => {
+    setItems([]);
+  }, []);
+
   const value = useMemo(
-    () => ({ items, addTx, removeTx, fetchTransactions, loading }),
-    [items, addTx, removeTx, fetchTransactions, loading],
+    () => ({ items, addTx, removeTx, fetchTransactions, clearTransactions, loading }),
+    [items, addTx, removeTx, fetchTransactions, clearTransactions, loading],
   );
 
   return <TransactionsContext.Provider value={value}>{children}</TransactionsContext.Provider>;
