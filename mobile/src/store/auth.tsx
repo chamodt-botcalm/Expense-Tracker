@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { api } from '../config/api';
+import { AuthService } from '../services/AuthService';
 
 type AuthState = {
   userEmail: string | null;
@@ -52,14 +52,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const response = await api.signIn(email, password);
+    const response = await AuthService.signIn(email, password);
     await AsyncStorage.setItem(KEY, JSON.stringify({ email: response.user.email, id: response.user.id }));
     setUserEmail(response.user.email);
     setUserId(String(response.user.id));
   }, []);
 
   const signUp = useCallback(async (email: string, password: string) => {
-    const response = await api.signUp(email, password);
+    const response = await AuthService.signUp(email, password);
     await AsyncStorage.setItem(KEY, JSON.stringify({ email: response.user.email, id: response.user.id }));
     setUserEmail(response.user.email);
     setUserId(String(response.user.id));

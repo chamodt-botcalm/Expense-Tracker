@@ -1,5 +1,5 @@
 import express from "express";
-import { getProfile, updateProfile } from "../controllers/profileController";
+import { getProfile, updateProfile, updatePassword } from "../controllers/profileController";
 import { validateNumericParam, validateProfileUpdateBody } from "../middleware/validators";
 import { requireUserFromParam } from "../middleware/requireUser";
 
@@ -13,6 +13,13 @@ router.put(
   requireUserFromParam("user_id"),
   validateProfileUpdateBody,
   updateProfile
+);
+
+router.put(
+  "/:user_id/password",
+  validateNumericParam("user_id"),
+  requireUserFromParam("user_id"),
+  updatePassword
 );
 
 export default router;

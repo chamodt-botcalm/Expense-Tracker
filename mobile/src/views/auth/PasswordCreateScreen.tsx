@@ -5,7 +5,7 @@ import AppInput from '../../components/AppInput';
 import AppButton from '../../components/AppButton';
 import Card from '../../components/Card';
 import { colors, spacing } from '../../theme/colors';
-import { signupApi } from '../../config/signupApi';
+import { AuthService } from '../../services/AuthService';
 
 export default function PasswordCreateScreen({ route, navigation }: any) {
   const { email, signupToken } = route.params;
@@ -36,7 +36,7 @@ export default function PasswordCreateScreen({ route, navigation }: any) {
 
     try {
       setLoading(true);
-      await signupApi.setPassword(email, password, signupToken);
+      await AuthService.setPassword(email, password, signupToken);
       Alert.alert(
         'Account Created!',
         'Your account has been created successfully. Please sign in.',

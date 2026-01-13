@@ -6,6 +6,7 @@ import AppButton from '../../components/AppButton';
 import { colors, spacing } from '../../theme/colors';
 import { AuthContext } from '../../store/auth';
 import Card from '../../components/Card';
+import { scaleHeight } from '../../constants/size';
 
 export default function SignInScreen({ navigation }: any) {
   const { signIn } = useContext(AuthContext);
@@ -101,6 +102,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     marginTop: 'auto',
-    paddingBottom: 20,
+    paddingBottom: scaleHeight(50),
   },
 });

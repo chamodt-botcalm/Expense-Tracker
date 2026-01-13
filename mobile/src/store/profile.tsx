@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useEffect, useState } from 'react';
-import { profileApi } from '../config/profileApi';
+import { ProfileService } from '../services/ProfileService';
 
 type ProfileState = {
   name: string;
@@ -42,11 +42,11 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const loadProfile = useCallback(async (userId: string) => {
     try {
       setIsLoading(true);
-      const data = await profileApi.getProfile(userId);
-      setName(data.profile.name || '');
-      setProfilePhoto(data.profile.profile_photo || null);
-      setCurrency(data.profile.currency || 'USD');
-      setDateFormat(data.profile.date_format || 'DD/MM/YYYY');
+      const profile = await ProfileService.getProfile(userId);
+      setName(profile.name || '');
+      setProfilePhoto(profile.profilePhoto || null);
+      setCurrency(profile.currency || 'USD');
+      setDateFormat(profile.date_format || 'DD/MM/YYYY');
     } catch (error) {
       console.error('Failed to load profile:', error);
     } finally {
@@ -55,22 +55,22 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const updateName = useCallback(async (userId: string, newName: string) => {
-    const data = await profileApi.updateProfile(userId, { name: newName });
-    setName(data.profile.name || '');
+    const profile = await ProfileService.updateProfile(userId, { name: newName });
+    setName(profile.name || '');
   }, []);
 
   const updatePhoto = useCallback(async (userId: string, photo: string) => {
-    await profileApi.updateProfile(userId, { profile_photo: photo });
+    await ProfileService.updateProfile(userId, { profile_photo: photo });
     setProfilePhoto(photo);
   }, []);
 
   const updateCurrency = useCallback(async (userId: string, newCurrency: string) => {
-    await profileApi.updateProfile(userId, { currency: newCurrency });
+    await ProfileService.updateProfile(userId, { currency: newCurrency });
     setCurrency(newCurrency);
   }, []);
 
   const updateDateFormat = useCallback(async (userId: string, newDateFormat: string) => {
-    await profileApi.updateProfile(userId, { date_format: newDateFormat });
+    await ProfileService.updateProfile(userId, { date_format: newDateFormat });
     setDateFormat(newDateFormat);
   }, []);
 

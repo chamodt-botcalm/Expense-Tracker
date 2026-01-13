@@ -5,7 +5,7 @@ import AppInput from '../../components/AppInput';
 import AppButton from '../../components/AppButton';
 import Card from '../../components/Card';
 import { colors, spacing } from '../../theme/colors';
-import { otpApi } from '../../config/otpApi';
+import { OtpService } from '../../services/OtpService';
 
 export default function OTPSignUpScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
@@ -21,7 +21,7 @@ export default function OTPSignUpScreen({ navigation }: any) {
 
     try {
       setLoading(true);
-      await otpApi.sendOTP(email.trim().toLowerCase());
+      await OtpService.sendOTP(email.trim().toLowerCase());
       navigation.navigate('OTPVerify', { email: email.trim().toLowerCase() });
     } catch (error: any) {
       Alert.alert('Error', error?.message || 'Failed to send OTP');

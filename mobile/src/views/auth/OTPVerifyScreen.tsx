@@ -5,7 +5,7 @@ import AppButton from '../../components/AppButton';
 import Card from '../../components/Card';
 import OTPInput from '../../components/OTPInput';
 import { colors, spacing } from '../../theme/colors';
-import { otpApi } from '../../config/otpApi';
+import { OtpService } from '../../services/OtpService';
 import { AuthContext } from '../../store/auth';
 
 export default function OTPVerifyScreen({ route, navigation }: any) {
@@ -31,8 +31,11 @@ export default function OTPVerifyScreen({ route, navigation }: any) {
 
     try {
       setLoading(true);
-      const response = await otpApi.verifyOTP(email, otp);
-      await setAuthToken(response.token, response.user);
+      const response = await OtpService.verifyOTP(email, otp);
+      navigation.navigate('PasswordCreate', {
+        email,
+        signupToken: response.signupToken,
+      });
     } catch (error: any) {
       Alert.alert('Error', error?.message || 'Verification failed');
       setOtp('');
@@ -44,7 +47,7 @@ export default function OTPVerifyScreen({ route, navigation }: any) {
   const handleResend = async () => {
     try {
       setLoading(true);
-      await otpApi.sendOTP(email);
+      await OtpService.sendOTP(email);
       setResendCooldown(30);
       setOtp('');
       Alert.alert('Success', 'New passkey sent to your email');

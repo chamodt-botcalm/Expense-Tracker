@@ -11,7 +11,8 @@ import { spacing, radius } from "../../theme/colors";
 import { AuthContext } from "../../store/auth";
 import { ThemeContext } from "../../store/theme";
 import { ProfileContext } from "../../store/profile";
-import { profileApi } from "../../config/profileApi";
+import { ProfileService } from "../../services/ProfileService";
+import { scaleHeight } from "../../constants/size";
 
 export default function ProfileScreen() {
   const { userEmail, userId, signOut } = useContext(AuthContext);
@@ -68,7 +69,7 @@ export default function ProfileScreen() {
   const toggleTheme = async (isDark: boolean) => {
     const next = isDark ? "dark" : "light";
     try {
-      await profileApi.updateProfile(userId!, { theme: next });
+      await ProfileService.updateProfile(userId!, { theme: next });
       setTheme(next);
     } catch (e: any) {
       Alert.alert("Error", e?.message || "Failed to update theme");
@@ -87,7 +88,7 @@ export default function ProfileScreen() {
         return Alert.alert("Error", "Password must be at least 6 characters");
       }
       setSavingPassword(true);
-      await profileApi.updatePassword(userId!, currentPassword, newPassword);
+      await ProfileService.updatePassword(userId!, currentPassword, newPassword);
       Alert.alert("Success", "Password updated successfully");
       setCurrentPassword("");
       setNewPassword("");
@@ -127,6 +128,9 @@ export default function ProfileScreen() {
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.bg }]} showsVerticalScrollIndicator={false}>
       <View style={styles.content}>
+        <AppText title style={{ fontSize: 28,marginBottom: 16 }}>
+        Profile
+      </AppText>
         <Card elevated>
           <View style={styles.header}>
             <CloudinaryPhotoPicker value={profilePhoto} onChange={onPhotoUploaded} />
@@ -183,7 +187,7 @@ export default function ProfileScreen() {
 
         <Card elevated>
           <AppText style={[styles.sectionTitle, { color: colors.text }]}>Preferences</AppText>
-          
+
           <View style={styles.preferenceRow}>
             <View>
               <AppText style={{ color: colors.text, fontWeight: '600', fontSize: 15 }}>Dark Theme</AppText>
@@ -218,6 +222,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: scaleHeight(50)
   },
   content: {
     padding: spacing.lg,
@@ -228,6 +233,8 @@ const styles = StyleSheet.create({
   email: {
     fontSize: 16,
     fontWeight: '600',
+    textAlign: 'center',
+    width: '100%',
   },
   sectionTitle: {
     fontSize: 18,

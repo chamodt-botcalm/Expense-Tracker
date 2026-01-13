@@ -5,7 +5,7 @@ import AppInput from '../../components/AppInput';
 import AppButton from '../../components/AppButton';
 import Card from '../../components/Card';
 import { colors, spacing } from '../../theme/colors';
-import { signupApi } from '../../config/signupApi';
+import { AuthService } from '../../services/AuthService';
 
 export default function SignupEmailScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
@@ -21,7 +21,7 @@ export default function SignupEmailScreen({ navigation }: any) {
 
     try {
       setLoading(true);
-      await signupApi.sendPasskey(email.trim().toLowerCase());
+      await AuthService.sendPasskey(email.trim().toLowerCase());
       navigation.navigate('PasskeyVerify', { email: email.trim().toLowerCase() });
     } catch (error: any) {
       Alert.alert('Error', error?.message || 'Failed to send passkey');

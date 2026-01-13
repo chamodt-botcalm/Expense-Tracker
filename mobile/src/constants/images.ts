@@ -6,4 +6,5 @@ export const images = {
     home: require('../../assets/images/home.png'),
     profile: require('../../assets/images/profile.png'),
     chart: require('../../assets/images/chart.png'),
+    splashScreen: require('../../assets/images/SplashScreen.png'),
 }

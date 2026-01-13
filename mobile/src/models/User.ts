@@ -4,4 +4,6 @@ export interface User {
   name?: string;
   profilePhoto?: string | null;
   theme?: 'dark' | 'light';
+  currency?: string;
+  date_format?: string;
 }

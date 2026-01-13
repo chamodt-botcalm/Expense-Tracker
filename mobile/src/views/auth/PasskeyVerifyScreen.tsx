@@ -5,7 +5,7 @@ import AppButton from '../../components/AppButton';
 import Card from '../../components/Card';
 import OTPInput from '../../components/OTPInput';
 import { colors, spacing } from '../../theme/colors';
-import { signupApi } from '../../config/signupApi';
+import { AuthService } from '../../services/AuthService';
 
 export default function PasskeyVerifyScreen({ route, navigation }: any) {
   const { email } = route.params;
@@ -29,7 +29,7 @@ export default function PasskeyVerifyScreen({ route, navigation }: any) {
 
     try {
       setLoading(true);
-      const response = await signupApi.verifyPasskey(email, passkey);
+      const response = await AuthService.verifyPasskey(email, passkey);
       navigation.navigate('PasswordCreate', {
         email,
         signupToken: response.signupToken,
@@ -45,7 +45,7 @@ export default function PasskeyVerifyScreen({ route, navigation }: any) {
   const handleResend = async () => {
     try {
       setLoading(true);
-      await signupApi.sendPasskey(email);
+      await AuthService.sendPasskey(email);
       setResendCooldown(30);
       setPasskey('');
       Alert.alert('Success', 'New passkey sent to your email');

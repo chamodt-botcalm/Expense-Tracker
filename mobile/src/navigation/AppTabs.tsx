@@ -36,7 +36,7 @@ function Label({ title, focused }: { title: string; focused: boolean }) {
 
   return (
     <Animated.View style={{ transform: [{ scale }] }}>
-      <AppText numberOfLines={1} style={{ fontSize: 10, marginTop: 4, color: focused ? colors.accent : colors.muted, fontWeight: '700' }}>
+      <AppText numberOfLines={1} style={{ fontSize: 9, marginTop: 4, color: focused ? colors.accent : colors.muted, fontWeight: '700', textAlign: 'center' }}>
         {title}
       </AppText>
     </Animated.View>
@@ -124,7 +124,7 @@ export default function AppTabs() {
         component={TransactionsScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-             <View>
+             <View style={{ alignItems: 'center' }}>
               <Image source={images.activity} style={{width:24,height:24,tintColor: focused ? colors.accent : colors.muted}} />
               <Label title="Activity" focused={focused} />
             </View>

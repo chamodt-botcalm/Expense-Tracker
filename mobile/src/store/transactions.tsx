@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import { api } from '../config/api';
+import { TransactionService } from '../services/TransactionService';
 
 export type Tx = {
   id: string;
@@ -34,14 +34,7 @@ export function TransactionsProvider({ children }: { children: React.ReactNode }
   const fetchTransactions = useCallback(async (userId: string) => {
     try {
       setLoading(true);
-      const response = await api.getTransactions(userId);
-      const transactions = response.transactions.map((tx: any) => ({
-        id: String(tx.id),
-        title: tx.title,
-        category: tx.category,
-        amount: Number(tx.amount),
-        dateISO: tx.created_at,
-      }));
+      const transactions = await TransactionService.getTransactions(userId);
       setItems(transactions);
     } catch (error) {
       console.error('Failed to fetch transactions:', error);
@@ -52,7 +45,7 @@ export function TransactionsProvider({ children }: { children: React.ReactNode }
 
   const addTx = useCallback(async (tx: Omit<Tx, 'id'>, userId: string) => {
     try {
-      await api.createTransaction(tx.title, tx.amount, tx.category, userId);
+      await TransactionService.createTransaction(tx.title, tx.amount, tx.category, userId);
       await fetchTransactions(userId);
     } catch (error) {
       console.error('Failed to add transaction:', error);
@@ -62,7 +55,7 @@ export function TransactionsProvider({ children }: { children: React.ReactNode }
 
   const removeTx = useCallback(async (id: string) => {
     try {
-      await api.deleteTransaction(id);
+      await TransactionService.deleteTransaction(id);
       setItems((prev) => prev.filter((t) => t.id !== id));
     } catch (error) {
       console.error('Failed to delete transaction:', error);

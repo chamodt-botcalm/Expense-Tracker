@@ -8,7 +8,7 @@ import AuthStack from './AuthStack';
 import AppStack from './AppStack';
 import SplashScreen from '../views/SplashScreen';
 import { colors } from '../theme/colors';
-import { profileApi } from '../config/profileApi';
+import { ProfileService } from '../services/ProfileService';
 
 export default function RootNavigator() {
   const { userEmail, isLoading, userId } = useContext(AuthContext);
@@ -33,11 +33,11 @@ export default function RootNavigator() {
       (async () => {
         try {
           const [profileData] = await Promise.all([
-            profileApi.getProfile(userId),
+            ProfileService.getProfile(userId),
             fetchTransactions(userId),
           ]);
           await loadProfile(userId);
-          if (profileData.profile.theme) setTheme(profileData.profile.theme);
+          if (profileData.theme) setTheme(profileData.theme);
         } catch (error) {
           console.error('Failed to load initial data:', error);
         } finally {
