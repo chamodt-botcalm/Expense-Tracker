@@ -1,12 +1,14 @@
-import { sql } from '../config/db';
+import { sql } from "../config/db";
 
 export interface User {
   id: number;
   email: string;
   password: string;
-  name?: string;
-  profile_photo?: string;
-  theme?: string;
+  name?: string | null;
+  profile_photo?: string | null;
+  theme?: "dark" | "light" | string | null;
+  currency?: string | null;
+  date_format?: string | null;
   created_at?: Date;
 }
 
@@ -23,8 +25,8 @@ export class UserModel {
 
   static async create(email: string, hashedPassword: string): Promise<User> {
     const result = await sql`
-      INSERT INTO users (email, password) 
-      VALUES (${email}, ${hashedPassword}) 
+      INSERT INTO users (email, password)
+      VALUES (${email}, ${hashedPassword})
       RETURNING *
     `;
     return result[0] as User;
@@ -32,41 +34,40 @@ export class UserModel {
 
   static async updateProfile(
     userId: string,
-    updates: { name?: string; profile_photo?: string; theme?: string; currency?: string; date_format?: string }
+    updates: {
+      name?: string;
+      profile_photo?: string;
+      theme?: string;
+      currency?: string;
+      date_format?: string;
+    }
   ): Promise<User> {
-    const fields: string[] = [];
-    const values: any[] = [];
-    
-    if (updates.name !== undefined) {
-      fields.push('name');
-      values.push(updates.name);
-    }
-    if (updates.profile_photo !== undefined) {
-      fields.push('profile_photo');
-      values.push(updates.profile_photo);
-    }
-    if (updates.theme !== undefined) {
-      fields.push('theme');
-      values.push(updates.theme);
-    }
-    if (updates.currency !== undefined) {
-      fields.push('currency');
-      values.push(updates.currency);
-    }
-    if (updates.date_format !== undefined) {
-      fields.push('date_format');
-      values.push(updates.date_format);
-    }
+    // If nothing provided, return current user row
+    const hasAny =
+      updates.name !== undefined ||
+      updates.profile_photo !== undefined ||
+      updates.theme !== undefined ||
+      updates.currency !== undefined ||
+      updates.date_format !== undefined;
 
-    if (fields.length === 0) {
+    if (!hasAny) {
       const result = await sql`SELECT * FROM users WHERE id = ${userId}`;
       return result[0] as User;
     }
 
-    const setClause = fields.map((field, i) => `${field} = $${i + 1}`).join(', ');
-    values.push(userId);
-    
-    const result = await sql.unsafe(`UPDATE users SET ${setClause} WHERE id = $${values.length} RETURNING *`, values);
+    // ✅ COALESCE keeps existing value if incoming value is NULL
+    const result = await sql`
+      UPDATE users
+      SET
+        name = COALESCE(${updates.name ?? null}, name),
+        profile_photo = COALESCE(${updates.profile_photo ?? null}, profile_photo),
+        theme = COALESCE(${updates.theme ?? null}, theme),
+        currency = COALESCE(${updates.currency ?? null}, currency),
+        date_format = COALESCE(${updates.date_format ?? null}, date_format)
+      WHERE id = ${userId}
+      RETURNING *
+    `;
+
     return result[0] as User;
   }
 

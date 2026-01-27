@@ -1,12 +1,17 @@
-import express from "express"
-import dotenv from "dotenv"
-import cors from "cors"
-import { initDB, sql } from './config/db'
-import rateLimiter from './middleware/rateLimiter';
-import transactionsRoutes from './routes/transactionsRoutes';
-import authRoutes from './routes/authRoutes';
-import signupRoutes from './routes/signupRoutes';
-import profileRoutes from './routes/profileRoutes';
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import http from "http";
+import { initDB } from "./config/db";
+import rateLimiter from "./middleware/RateLimiter";
+
+import transactionsRoutes from "./routes/transactionsRoutes";
+import authRoutes from "./routes/authRoutes";
+import signupRoutes from "./routes/signupRoutes";
+import profileRoutes from "./routes/profileRoutes";
+import notificationRoutes from "./routes/notificationRoutes";
+
+import { initSocket } from "./socket";
 
 dotenv.config();
 
@@ -14,17 +19,24 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 app.use(cors());
-app.use(rateLimiter)
+app.use(rateLimiter);
 app.use(express.json());
-app.use('/api/auth', authRoutes);
-app.use('/api/auth', signupRoutes);
-app.use('/api/transaction',transactionsRoutes)
-app.use('/api/profile', profileRoutes);
 
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/auth", signupRoutes);
+app.use("/api/transaction", transactionsRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/notifications", notificationRoutes);
 
-initDB().then(() =>
-    app.listen(PORT, () => {
-        console.log("SERVER IS UP AND RUNNING ON PORT:", PORT);
-    })
-)
+// Create HTTP server for socket.io
+const server = http.createServer(app);
 
+// Init socket
+initSocket(server);
+
+initDB().then(() => {
+  server.listen(PORT, () => {
+    console.log("SERVER IS UP AND RUNNING ON PORT:", PORT);
+  });
+});

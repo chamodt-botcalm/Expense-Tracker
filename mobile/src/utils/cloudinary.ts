@@ -5,7 +5,7 @@ import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET } from "../config/env";
  * Returns the secure_url of the uploaded image.
  */
 export async function uploadImageToCloudinary(imageUri: string): Promise<string> {
-  if (!CLOUDINARY_CLOUD_NAME || CLOUDINARY_CLOUD_NAME === "YOUR_CLOUD_NAME") {
+  if (CLOUDINARY_CLOUD_NAME !== "dkw8nqukp") {
     throw new Error("Cloudinary cloud name is not set. Update mobile/src/config/env.ts");
   }
 
