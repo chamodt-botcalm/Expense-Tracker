@@ -6,14 +6,10 @@ export function requireUserFromParam(paramName: string = "user_id") {
     try {
       const idRaw = (req.params as any)[paramName];
       const id = Number(idRaw);
-
-      const result =
-        await sql`SELECT id, email, name, profile_photo, theme, currency, date_format FROM users WHERE id = ${id}`;
-
+      const result = await sql`SELECT id, email, name, profile_photo, theme FROM users WHERE id = ${id}`;
       if (result.length === 0) {
         return res.status(404).json({ message: "User not found" });
       }
-
       (req as any).user = result[0];
       next();
     } catch (err) {
@@ -28,14 +24,10 @@ export function requireUserFromBody(bodyField: string = "user_id") {
     try {
       const idRaw = (req.body as any)?.[bodyField];
       const id = Number(idRaw);
-
-      const result =
-        await sql`SELECT id, email, name, profile_photo, theme, currency, date_format FROM users WHERE id = ${id}`;
-
+      const result = await sql`SELECT id, email, name, profile_photo, theme FROM users WHERE id = ${id}`;
       if (result.length === 0) {
         return res.status(404).json({ message: "User not found" });
       }
-
       (req as any).user = result[0];
       next();
     } catch (err) {

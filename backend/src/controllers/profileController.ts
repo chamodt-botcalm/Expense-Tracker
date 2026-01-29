@@ -1,5 +1,7 @@
 import { UserModel } from '../models/UserModel';
 import bcrypt from 'bcrypt';
+import { emitToUser } from '../socket';
+import { sendPushToUser } from '../services/pushService';
 
 export async function getProfile(req: any, res: any) {
   try {
@@ -24,6 +26,12 @@ export async function updateProfile(req: any, res: any) {
 
     const user = await UserModel.updateProfile(userId, { name, profile_photo, theme, currency, date_format });
     const { password, ...profile } = user;
+
+    // ✅ notify user in real-time
+    emitToUser(userId, 'profile:updated', { profile });
+
+    // ✅ Push (background/closed)
+    await sendPushToUser(userId, 'Profile updated', 'Your profile settings were updated', { type: 'profile:updated' });
 
     res.status(200).json({ message: "Profile updated", profile });
   } catch (error) {
@@ -53,6 +61,10 @@ export async function updatePassword(req: any, res: any) {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await UserModel.updatePassword(userId, hashedPassword);
+
+    emitToUser(userId, 'profile:password:updated', { message: 'Password updated successfully' });
+
+    await sendPushToUser(userId, 'Password updated', 'Your password was changed', { type: 'profile:password:updated' });
 
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {

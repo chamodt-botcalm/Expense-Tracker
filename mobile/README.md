@@ -32,6 +32,23 @@ npm run android
 yarn android
 ```
 
+## Push Notifications (FCM)
+
+This project supports **push notifications even when the app is closed/background** using Firebase Cloud Messaging.
+
+1) Create a Firebase project and add an Android app with package name **com.mobile**.
+2) Download **google-services.json** and place it here:
+
+`android/app/google-services.json`
+
+3) Re-install dependencies and rebuild:
+
+```sh
+npm install
+cd android && gradlew clean && cd ..
+npm run android
+```
+
 ### iOS
 
 For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).

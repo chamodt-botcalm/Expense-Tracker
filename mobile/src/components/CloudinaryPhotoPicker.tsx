@@ -29,7 +29,7 @@ export default function CloudinaryPhotoPicker({
       {
         mediaType: "photo",
         selectionLimit: 1,
-        quality: 0.85,
+        quality: 0.85 as ImagePicker.PhotoQuality,
       },
       async (response) => {
         if (response.didCancel) return;

@@ -1,20 +1,29 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+
 import { AuthContext } from '../store/auth';
 import { TransactionsContext } from '../store/transactions';
 import { ProfileContext } from '../store/profile';
 import { ThemeContext } from '../store/theme';
+
 import AuthStack from './AuthStack';
 import AppStack from './AppStack';
 import SplashScreen from '../views/SplashScreen';
 import { colors } from '../theme/colors';
 import { ProfileService } from '../services/ProfileService';
 
-export default function RootNavigator() {
+import { NotificationsProvider, NotificationsContext } from '../store/notifications';
+import NotificationBanner from '../components/NotificationBanner';
+import { connectSocket, disconnectSocket, onEvent, offEvent } from '../services/SocketService';
+import { initPushForLoggedInUser, listenForegroundPush } from '../services/PushNotificationService';
+
+function RootNavigatorInner() {
   const { userEmail, isLoading, userId } = useContext(AuthContext);
   const { fetchTransactions, clearTransactions } = useContext(TransactionsContext);
-  const { loadProfile, clearProfile, isLoading: profileLoading } = useContext(ProfileContext);
+  const { loadProfile, clearProfile } = useContext(ProfileContext);
   const { setTheme } = useContext(ThemeContext);
+  const { show } = useContext(NotificationsContext);
+
   const [showSplash, setShowSplash] = useState(true);
   const [dataLoaded, setDataLoaded] = useState(false);
 
@@ -27,7 +36,7 @@ export default function RootNavigator() {
     }
   }, [userId, clearProfile, clearTransactions]);
 
-  // Load all data when user is authenticated
+  // Load data when user is authenticated
   useEffect(() => {
     if (userId && !dataLoaded) {
       (async () => {
@@ -37,7 +46,7 @@ export default function RootNavigator() {
             fetchTransactions(userId),
           ]);
           await loadProfile(userId);
-          if (profileData.theme) setTheme(profileData.theme);
+          if (profileData?.theme) setTheme(profileData.theme);
         } catch (error) {
           console.error('Failed to load initial data:', error);
         } finally {
@@ -46,6 +55,69 @@ export default function RootNavigator() {
       })();
     }
   }, [userId, dataLoaded, fetchTransactions, loadProfile, setTheme]);
+
+  // ✅ FCM Push notifications (works even when app is closed/background)
+  useEffect(() => {
+    if (!userId) return;
+
+    let unsubscribe: any;
+
+    (async () => {
+      try {
+        await initPushForLoggedInUser(userId);
+        unsubscribe = listenForegroundPush((title, body) => {
+          // Optional in-app banner while foreground
+          show({ title, body });
+        });
+      } catch (e) {
+        // ignore
+      }
+    })();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [userId, show]);
+
+  // ✅ Socket.IO real-time notifications (works while app is running)
+  useEffect(() => {
+    if (!userId || !dataLoaded) return;
+
+    connectSocket(userId);
+
+    const onNewTx = async (payload: any) => {
+      if (payload?.title) show({ title: payload.title, body: payload.body });
+      try {
+        await fetchTransactions(userId);
+      } catch {}
+    };
+
+    const onDeletedTx = async (payload: any) => {
+      if (payload?.title) show({ title: payload.title, body: payload.body });
+      try {
+        await fetchTransactions(userId);
+      } catch {}
+    };
+
+    const onProfileUpdated = async (payload: any) => {
+      // If backend sends profile -> update local store
+      try {
+        await loadProfile(userId);
+        if (payload?.profile?.theme) setTheme(payload.profile.theme);
+      } catch {}
+    };
+
+    onEvent('tx:new', onNewTx);
+    onEvent('tx:deleted', onDeletedTx);
+    onEvent('profile:updated', onProfileUpdated);
+
+    return () => {
+      offEvent('tx:new', onNewTx);
+      offEvent('tx:deleted', onDeletedTx);
+      offEvent('profile:updated', onProfileUpdated);
+      disconnectSocket();
+    };
+  }, [userId, dataLoaded, fetchTransactions, loadProfile, setTheme, show]);
 
   // Hide splash when auth loaded and data fetched (or no user)
   useEffect(() => {
@@ -73,7 +145,16 @@ export default function RootNavigator() {
 
   return (
     <NavigationContainer theme={theme}>
+      <NotificationBanner />
       {userEmail ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
+  );
+}
+
+export default function RootNavigator() {
+  return (
+    <NotificationsProvider>
+      <RootNavigatorInner />
+    </NotificationsProvider>
   );
 }

@@ -15,7 +15,7 @@ import { images } from '../../constants/images';
 export default function HomeScreen({ navigation }: any) {
   const { items } = useContext(TransactionsContext);
   const { userEmail } = useContext(AuthContext);
-  const { name, profilePhoto, currency } = useContext(ProfileContext);
+  const { name, profilePhoto } = useContext(ProfileContext);
   const { colors } = useContext(ThemeContext);
 
   const stats = useMemo(() => {
@@ -43,61 +43,60 @@ export default function HomeScreen({ navigation }: any) {
         </View>
       </View>
 
-      <View style={styles.statsContainer}>
-        <Card style={[styles.statsCard, { backgroundColor: colors.surface }]} elevated>
-          <AppText style={[styles.balanceLabel, { color: colors.muted }]}>Total Balance</AppText>
-          <AppText style={[styles.balanceAmount, { color: colors.text,paddingVertical:10, height: 50, fontSize: 36 }]}>
-            {formatMoney(stats.balance, currency)}
-          </AppText>
+      <Card elevated style={{ marginTop: 20 }}>
+        <AppText muted style={{ fontSize: 13 }}>Total Balance</AppText>
+        <AppText title mono style={{ marginTop: 10, fontSize: 36 }}>
+          {formatMoney(stats.balance)}
+        </AppText>
 
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <View style={[styles.statIcon, { backgroundColor: colors.success + '20' }]}>
-                <Image source={images.income} style={[styles.statIconImage, { tintColor: colors.success }]} />
+        <View style={{ flexDirection: 'row', alignSelf: 'center', gap: 12, marginTop: 20 }}>
+          <View style={[styles.pill, { backgroundColor: 'rgba(77,255,136,0.12)', borderColor: 'rgba(77,255,136,0.3)' }]}>
+
+            <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
+              <View style={styles.pillIcon}>
+                <Image source={images.income} style={styles.Image} />
               </View>
-              <View>
-                <AppText style={[styles.statLabel, { color: colors.muted }]}>Income</AppText>
-                <AppText style={[styles.statAmount, { color: colors.success }]}>
-                  {formatMoney(stats.income, currency)}
-                </AppText>
-              </View>
+              <AppText muted style={{ fontSize: 12 }}>Income</AppText>
             </View>
 
-            <View style={styles.statItem}>
-              <View style={[styles.statIcon, { backgroundColor: colors.danger + '20' }]}>
-                <Image source={images.expense} style={[styles.statIconImage, { tintColor: colors.danger }]} />
-              </View>
-              <View>
-                <AppText style={[styles.statLabel, { color: colors.muted }]}>Expenses</AppText>
-                <AppText style={[styles.statAmount, { color: colors.text, fontWeight: '800', fontSize: 16 }]}>
-                  {formatMoney(stats.expense, currency)}
-                </AppText>
-              </View>
-            </View>
+            <AppText mono style={{ marginTop: 4, fontWeight: '800', fontSize: 16, color: colors.success }}>
+              {formatMoney(stats.income)}
+            </AppText>
+
           </View>
-        </Card>
-      </View>
+          <View style={[styles.pill, { backgroundColor: 'rgba(255,77,77,0.10)', borderColor: 'rgba(255,77,77,0.3)' }]}>
 
-      <View style={styles.sectionHeader}>
-        <AppText style={[styles.sectionTitle, { color: colors.text }]}>Recent Transactions</AppText>
-        <Pressable onPress={() => navigation.navigate('Transactions')} style={({ pressed }) => [pressed && { opacity: 0.7 }]}>
-          <AppText style={{ color: colors.accent, fontWeight: '700' }}>View All</AppText>
+            <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
+              <View style={styles.pillIcon}>
+                <Image source={images.expense} style={styles.Image} />
+              </View>
+              <AppText muted style={{ fontSize: 12 }}>Expense</AppText>
+            </View>
+
+            <AppText mono style={{ marginTop: 4, fontWeight: '800', fontSize: 16 }}>
+              {formatMoney(stats.expense)}
+            </AppText>
+
+          </View>
+        </View>
+      </Card>
+
+      <View style={styles.sectionRow}>
+        <AppText style={{ fontWeight: '800', fontSize: 17 }}>Recent Transactions</AppText>
+        <Pressable onPress={() => navigation.navigate('Transactions')} hitSlop={10}>
+          <AppText style={{ color: colors.accent, fontWeight: '800', fontSize: 14 }}>View all →</AppText>
         </Pressable>
       </View>
 
       <FlatList
         data={recent}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ gap: 12, paddingBottom: 130 }}
+        keyExtractor={(i) => i.id}
+        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
         renderItem={({ item }) => (
           <TransactionItem item={item} onPress={() => navigation.navigate('Transactions')} />
         )}
+        contentContainerStyle={{ paddingBottom: 28 }}
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={() => (
-          <View style={{ marginTop: 30, alignItems: 'center' }}>
-            <AppText muted>No transactions yet</AppText>
-          </View>
-        )}
       />
     </View>
   );
@@ -112,105 +111,77 @@ const styles = StyleSheet.create({
   profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: scaleHeight(20),
     padding: spacing.md,
     borderRadius: radius.lg,
   },
   profileImage: {
-    width: 55,
-    height: 55,
-    borderRadius: 28,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
   },
   profilePlaceholder: {
-    width: 55,
-    height: 55,
-    borderRadius: 28,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   profileInitial: {
-    fontSize: 22,
-    fontWeight: '800',
+    fontSize: 20,
+    fontWeight: '700',
   },
   profileInfo: {
-    marginLeft: 14,
+    marginLeft: spacing.md,
     flex: 1,
   },
   greeting: {
-    fontSize: 18,
-    fontWeight: '800',
+    fontSize: 20,
+    fontWeight: '700',
   },
   email: {
-    marginTop: 3,
-    fontSize: 13,
+    fontSize: 12,
+    marginTop: 2,
   },
-  statsContainer: {
-    marginTop: 20,
+  addBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  statsCard: {
-    padding: spacing.lg,
-  },
-  balanceLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  balanceAmount: {
-    fontWeight: '900',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 15,
-  },
-  statItem: {
-    flexDirection: 'row',
+  pill: {
+    borderRadius: radius.lg,
+    padding: 14,
+    borderWidth: 1,
+    justifyContent: 'center',
     alignItems: 'center',
     gap: 10,
   },
-  statIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 14,
+  pillIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  statIconImage: {
-    width: 22,
-    height: 22,
-    resizeMode: 'contain',
-  },
-  statLabel: {
-    fontSize: 12,
-  },
-  statAmount: {
-    fontSize: 16,
-    fontWeight: '800',
-    marginTop: 2,
-  },
-  sectionHeader: {
+  sectionRow: {
+    marginTop: 24,
+    marginBottom: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 24,
-    marginBottom: 14,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '900',
-  },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 25,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 8,
-  },
-  fabText: {
-    fontSize: 26,
-    fontWeight: '900',
-    marginTop: -2,
-  },
+  Image: {
+    width: 38,
+    height: 38,
+    tintColor: '#FFFF',
+    resizeMode: 'contain'
+  }
 });

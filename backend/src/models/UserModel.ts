@@ -1,4 +1,4 @@
-import { sql } from "../config/db";
+import { sql } from '../config/db';
 
 export interface User {
   id: number;
@@ -6,7 +6,7 @@ export interface User {
   password: string;
   name?: string | null;
   profile_photo?: string | null;
-  theme?: "dark" | "light" | string | null;
+  theme?: 'dark' | 'light' | string | null;
   currency?: string | null;
   date_format?: string | null;
   created_at?: Date;
@@ -32,6 +32,10 @@ export class UserModel {
     return result[0] as User;
   }
 
+  /**
+   * Updates profile fields. Any field not provided will remain unchanged.
+   * Uses COALESCE to keep existing values.
+   */
   static async updateProfile(
     userId: string,
     updates: {
@@ -42,7 +46,6 @@ export class UserModel {
       date_format?: string;
     }
   ): Promise<User> {
-    // If nothing provided, return current user row
     const hasAny =
       updates.name !== undefined ||
       updates.profile_photo !== undefined ||
@@ -55,7 +58,6 @@ export class UserModel {
       return result[0] as User;
     }
 
-    // ✅ COALESCE keeps existing value if incoming value is NULL
     const result = await sql`
       UPDATE users
       SET

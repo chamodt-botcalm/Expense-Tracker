@@ -1,17 +1,17 @@
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import http from "http";
-import { initDB } from "./config/db";
-import rateLimiter from "./middleware/RateLimiter";
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import http from 'http';
 
-import transactionsRoutes from "./routes/transactionsRoutes";
-import authRoutes from "./routes/authRoutes";
-import signupRoutes from "./routes/signupRoutes";
-import profileRoutes from "./routes/profileRoutes";
-import notificationRoutes from "./routes/notificationRoutes";
+import { initDB } from './config/db';
+import rateLimiter from './middleware/RateLimiter';
+import transactionsRoutes from './routes/transactionsRoutes';
+import authRoutes from './routes/authRoutes';
+import signupRoutes from './routes/signupRoutes';
+import profileRoutes from './routes/profileRoutes';
+import notificationRoutes from './routes/notificationRoutes';
 
-import { initSocket } from "./socket";
+import { initSocket } from './socket';
 
 dotenv.config();
 
@@ -22,21 +22,17 @@ app.use(cors());
 app.use(rateLimiter);
 app.use(express.json());
 
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/auth", signupRoutes);
-app.use("/api/transaction", transactionsRoutes);
-app.use("/api/profile", profileRoutes);
-app.use("/api/notifications", notificationRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/auth', signupRoutes);
+app.use('/api/transaction', transactionsRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/notifications', notificationRoutes);
 
-// Create HTTP server for socket.io
 const server = http.createServer(app);
-
-// Init socket
 initSocket(server);
 
-initDB().then(() => {
+initDB().then(() =>
   server.listen(PORT, () => {
-    console.log("SERVER IS UP AND RUNNING ON PORT:", PORT);
-  });
-});
+    console.log('SERVER IS UP AND RUNNING ON PORT:', PORT);
+  }),
+);
